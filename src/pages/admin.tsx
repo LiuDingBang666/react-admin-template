@@ -134,6 +134,7 @@ const Admin: React.FC = () => {
                             background: colorBgContainer,
                             borderRadius: borderRadiusLG,
                             overflow: 'auto',
+                            position: 'relative',
                         }}
                     >
                         <Outlet/>
