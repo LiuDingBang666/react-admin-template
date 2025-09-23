@@ -6,7 +6,8 @@
  */
 import {
     Button,
-    Col,
+    Col, Divider,
+    Drawer,
     Form,
     type GetProp,
     Input, message, Pagination, Popconfirm,
@@ -21,6 +22,9 @@ import {
 import '@/assets/styles/crud.scss'
 import {useEffect, useState} from "react";
 import type {SorterResult} from "antd/es/table/interface";
+import DescriptionItem from "@/pages/system/components/description-item.tsx";
+import Detail from "@/pages/system/components/detail.tsx";
+import Update from "@/pages/system/components/update.tsx";
 
 
 
@@ -134,7 +138,15 @@ export default function DemoCrud() {
 
 
     // 详情
-
+    const [open, setOpen] = useState(false);
+    const [type, setType] = useState<'detail' | 'update'>('detail');
+    const showDrawer = (type: 'detail' | 'update') => {
+        setType(type)
+        setOpen(true);
+    };
+    const onClose = () => {
+        setOpen(false);
+    };
 
     // 修改
 
@@ -195,8 +207,8 @@ export default function DemoCrud() {
             fixed: 'right',
             render: (_, record) => (
                 <Space size="middle">
-                    <a>详情</a>
-                    <a>修改</a>
+                    <a onClick={() => showDrawer('detail')}>详情</a>
+                    <a onClick={() => showDrawer('update')}>修改</a>
                     <Popconfirm
                         title="删除确认"
                         description="您确认要删除该条记录嘛?"
@@ -338,6 +350,14 @@ export default function DemoCrud() {
                         />
                     </Col>
                 </Row>
+            {/* 修改 */}
+            {/* 详情 */}
+            <Drawer width={640} placement="right" closable={false} onClose={onClose} open={open}>
+                <p className="site-description-item-profile-p" style={{ marginBottom: 24 }}>
+                    User Profile {type}
+                </p>
+                {type === 'detail' ? Detail() : Update({onClose})}
+            </Drawer>
         </>
     );
 }
