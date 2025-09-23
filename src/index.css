@@ -1,0 +1,13 @@
+@import "antd/dist/reset.css";
+
+:root {
+
+}
+
+
+#root {
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: 100%;
+}
