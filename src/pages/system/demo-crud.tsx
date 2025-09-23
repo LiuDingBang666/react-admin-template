@@ -6,6 +6,7 @@
  */
 import {Button, Checkbox, Form, Input, Row, Space, Table, type TableProps, Tag} from "antd";
 import '@/assets/styles/crud.scss'
+import {useId, useState} from "react";
 export default function DemoCrud() {
     // search
 
@@ -74,13 +75,55 @@ export default function DemoCrud() {
         },
     ];
 
-    const data: DataType[] = Array.from({length: 20}).map(value => ( {
-        key: '1',
+    const data: DataType[] = Array.from({length: 20}).map(() => ( {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        key: useId(),
         name: '张三',
         age: 32,
         address: '湖南长沙',
         tags: ['超级管理员', '全栈工程师'],
     }))
+
+    // config
+
+    // 复选
+    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+    const rowSelection: TableProps<DataType>['rowSelection'] = {
+        // 这里配置多选还是单选
+        selectedRowKeys,
+        // 选择项发生变化时的回调
+        onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+            console.log(`选择的keys: ${selectedRowKeys}`, '选择的rows: ', selectedRows);
+            setSelectedRowKeys(selectedRowKeys);
+
+        },
+        // 配置不能被选中
+        getCheckboxProps: (record: DataType) => ({
+            disabled: record.name === '李四',
+            name: record.name,
+        }),
+        // 自定义选择项
+        selections: [
+            Table.SELECTION_ALL,
+            Table.SELECTION_INVERT,
+            Table.SELECTION_NONE,
+            {
+                key: 'odd',
+                text: '选择偶数行',
+                onSelect: (changeableRowKeys) => {
+                    let newSelectedRowKeys = [];
+                    newSelectedRowKeys = changeableRowKeys.filter((_, index) => {
+                        if (index % 2 !== 0) {
+                            return false;
+                        }
+                        return true;
+                    });
+                    setSelectedRowKeys(newSelectedRowKeys);
+                },
+            }
+        ],
+    };
+
 
     // page with operator
     return (
@@ -103,19 +146,19 @@ export default function DemoCrud() {
                         label="用户名"
                         name="username"
                     >
-                        <Input />
+                        <Input placeholder="请输入用户名" />
                     </Form.Item>
                     <Form.Item
                         label="用户名"
                         name="username"
                     >
-                        <Input />
+                        <Input placeholder="请输入用户名"  />
                     </Form.Item>
                     <Form.Item
                         label="用户名"
                         name="username"
                     >
-                        <Input />
+                        <Input placeholder="请输入用户名"  />
                     </Form.Item>
 
 
@@ -138,8 +181,12 @@ export default function DemoCrud() {
             </Row>
             {/*table*/}
             <Row className="table">
-                <Table style={{width: '100%'}}  columns={columns} dataSource={data} />
+                <Table style={{width: '100%'}}  columns={columns} dataSource={data} rowSelection={{type: 'checkbox', ...rowSelection}}/>
             </Row>
+            {/*额外操作*/}
+            <div className="extraOperators">
+                <Button type="primary" danger={true} disabled={selectedRowKeys.length == 0}>批量删除</Button>
+            </div>
         </>
     );
 }
