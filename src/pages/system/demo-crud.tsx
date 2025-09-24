@@ -6,7 +6,7 @@
  */
 import {
     Button,
-    Col, Divider,
+    Col,
     Drawer,
     Form,
     type GetProp,
@@ -22,7 +22,6 @@ import {
 import '@/assets/styles/crud.scss'
 import {useEffect, useState} from "react";
 import type {SorterResult} from "antd/es/table/interface";
-import DescriptionItem from "@/pages/system/components/description-item.tsx";
 import Detail from "@/pages/system/components/detail.tsx";
 import Update from "@/pages/system/components/update.tsx";
 
@@ -129,7 +128,7 @@ export default function DemoCrud() {
 
 
     // 删除
-    function handlerDelConfirm( record) {
+    function handlerDelConfirm( record: DataType) {
         console.log('删除确认', record);
         message.success('删除成功')
         setSelectedRowKeys([])
@@ -350,14 +349,15 @@ export default function DemoCrud() {
                         />
                     </Col>
                 </Row>
-            {/* 修改 */}
-            {/* 详情 */}
+
+            {/* 更新 */}
             <Drawer width={640} placement="right" closable={false} onClose={onClose} open={open}>
                 <p className="site-description-item-profile-p" style={{ marginBottom: 24 }}>
                     User Profile {type}
                 </p>
                 {type === 'detail' ? Detail() : Update({onClose})}
             </Drawer>
-        </>
-    );
+
+            </>
+    )
 }
