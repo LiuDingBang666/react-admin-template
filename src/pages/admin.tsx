@@ -5,7 +5,7 @@
  * @date: 2025/9/23 13:13
  */
 
-import React from 'react';
+import React, {type ReactNode} from 'react';
 import './admin.scss'
 import {
     DownOutlined, InfoCircleOutlined,
@@ -16,10 +16,13 @@ import {
 import {Dropdown, type MenuProps, message, Space} from 'antd';
 import { Breadcrumb, Layout, Menu, theme, Image } from 'antd';
 import {Outlet, useNavigate} from "react-router-dom";
+import {useUserStore} from "@/store/user-store.ts";
 
 const { Header, Content, Sider } = Layout;
 
-const Admin: React.FC = () => {
+const Admin = (): ReactNode => {
+
+    const {name} = useUserStore()
 
     const items1: MenuProps['items'] = ['1'].map((key) => ({
         key,
@@ -61,7 +64,7 @@ const Admin: React.FC = () => {
     const items: MenuProps['items'] = [
         {
             key: '1',
-            label: '超级管理员',
+            label: name,
             disabled: true,
         },
         {
@@ -105,7 +108,7 @@ const Admin: React.FC = () => {
                     <Dropdown menu={{ items, onClick: handlerClick }} >
                         <a>
                             <Space>
-                                超级管理员
+                                {name}
                                 <DownOutlined />
                             </Space>
                         </a>

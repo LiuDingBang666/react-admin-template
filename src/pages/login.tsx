@@ -9,8 +9,10 @@ import {Button, Checkbox, Col, Form, Image, Input, message, Row, Grid} from "ant
 import type { FormProps } from 'antd';
 import {useNavigate} from "react-router-dom";
 import type { ValidateErrorEntity} from "rc-field-form/lib/interface";
+import {useUserStore} from "@/store/user-store.ts";
+import type {ReactNode} from "react";
 
-export default function Login() {
+export default function Login(): ReactNode {
     // Define form values type
     interface LoginFormValues {
         username: string;
@@ -24,10 +26,14 @@ export default function Login() {
 
     const navigate  = useNavigate();
 
+    const { setName } = useUserStore()
+
+
     const onFinish: FormProps<LoginFormValues>["onFinish"] = (values) => {
         console.log('Success:', values);
         navigate('/admin');
         message.success('登录成功');
+        setName(values.username)
     };
     const onFinishFailed = (errorInfo: ValidateErrorEntity) => {
         console.log('Failed:', errorInfo);

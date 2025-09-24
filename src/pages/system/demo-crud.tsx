@@ -138,8 +138,8 @@ export default function DemoCrud() {
 
     // 详情
     const [open, setOpen] = useState(false);
-    const [type, setType] = useState<'detail' | 'update'>('detail');
-    const showDrawer = (type: 'detail' | 'update') => {
+    const [type, setType] = useState<'detail' | 'update'  | 'add'>('detail');
+    const showDrawer = (type: 'detail' | 'update'  | 'add') => {
         setType(type)
         setOpen(true);
     };
@@ -308,12 +308,17 @@ export default function DemoCrud() {
                         </Button>
                     </Form.Item>
                     <Form.Item label={null}>
-                        <Button type="primary" danger={true} htmlType="submit">
+                        <Button type="primary"  onClick={() => showDrawer('add')}>
+                            新增
+                        </Button>
+                    </Form.Item>
+                    <Form.Item label={null}>
+                        <Button type="primary" danger={true}>
                             导入
                         </Button>
                     </Form.Item>
                     <Form.Item label={null}>
-                        <Button color={"green"} type={"primary"}  htmlType="submit">
+                        <Button color={"green"} type={"primary"} >
                             导出
                         </Button>
                     </Form.Item>
@@ -357,7 +362,6 @@ export default function DemoCrud() {
                 </p>
                 {type === 'detail' ? Detail() : Update({onClose})}
             </Drawer>
-
             </>
     )
 }
