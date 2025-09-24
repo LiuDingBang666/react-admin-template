@@ -15,8 +15,9 @@ import {
 } from '@ant-design/icons';
 import {Dropdown, type MenuProps, message, Space} from 'antd';
 import { Breadcrumb, Layout, Menu, theme, Image } from 'antd';
-import {Outlet, useNavigate} from "react-router-dom";
+import {Outlet, useLocation, useNavigate, useParams, useSearchParams} from "react-router-dom";
 import {useUserStore} from "@/store/user-store.ts";
+import * as sea from "node:sea";
 
 const { Header, Content, Sider } = Layout;
 
@@ -47,6 +48,18 @@ const Admin = (): ReactNode => {
             };
         },
     );
+
+    // search params
+    const [searchParams] = useSearchParams()
+    console.log(searchParams);
+
+    // path params
+    const {id} = useParams()
+    console.log(id)
+
+    // router location params
+    const {state} = useLocation()
+    console.log(state.from)
 
 
     const {

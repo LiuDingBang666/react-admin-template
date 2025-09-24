@@ -12,13 +12,13 @@ const Admin = lazy(() => import("@/pages/admin.tsx"));
 const DemoCrud = lazy(() => import("@/pages/system/demo-crud.tsx"))
 
 
-export const router = createBrowserRouter([
+const router = createBrowserRouter([
     {
         path: '/',
         element:<Login/>,
     },
     {
-        path: '/admin',
+        path: '/admin/:id',
         element: <Admin/>,
         children: [
             {
@@ -28,3 +28,8 @@ export const router = createBrowserRouter([
         ],
     }
 ])
+
+router.subscribe((state)=>{
+    console.log(state)
+})
+export default router;

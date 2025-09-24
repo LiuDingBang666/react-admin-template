@@ -31,7 +31,11 @@ export default function Login(): ReactNode {
 
     const onFinish: FormProps<LoginFormValues>["onFinish"] = (values) => {
         console.log('Success:', values);
-        navigate('/admin');
+        navigate('/admin/10086?a=1', {
+            state: {
+                from: 'test demo'
+            }
+        });
         message.success('登录成功');
         setName(values.username)
     };
