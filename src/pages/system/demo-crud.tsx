@@ -50,22 +50,18 @@ interface TableParams {
     // 查询参数
     searchParams: object
 }
+
+
 export default function DemoCrud() {
     // search
-
     function onSearch(values: object) {
         console.log('Success:', values);
         fetchData()
     }
 
-
-    // table
-
-
     // page
     const [data, setData] = useState<DataType[]>([]);
     const [loading, setLoading] = useState(false);
-
     const [tableParams, setTableParams] = useState<TableParams>({
         pagination: {
             current: 1,
@@ -136,19 +132,22 @@ export default function DemoCrud() {
     }
 
 
-    // 详情
+    // 详情及更新
     const [open, setOpen] = useState(false);
+
     const [type, setType] = useState<'detail' | 'update'  | 'add'>('detail');
+
     const showDrawer = (type: 'detail' | 'update'  | 'add') => {
         setType(type)
         setOpen(true);
     };
+
     const onClose = () => {
         setOpen(false);
     };
 
-    // 修改
 
+    // config
     const columns: TableProps<DataType>['columns'] = [
         {
             title: '序号',
@@ -198,7 +197,7 @@ export default function DemoCrud() {
                     })}
                 </>
             ),
-                width: 500,
+            width: 500,
         },
         {
             title: '操作',
@@ -215,7 +214,7 @@ export default function DemoCrud() {
                         okText="确认"
                         cancelText="取消"
                     >
-                    <a style={{color: 'red'}}>删除</a>
+                        <a style={{color: 'red'}}>删除</a>
                     </Popconfirm>
 
                 </Space>
@@ -223,9 +222,6 @@ export default function DemoCrud() {
             width: 200,
         },
     ];
-
-
-    // config
 
     // 复选
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -264,9 +260,6 @@ export default function DemoCrud() {
             }
         ],
     };
-
-    // 查询 选择搜索
-
 
     // page with operator
     return (
@@ -324,11 +317,14 @@ export default function DemoCrud() {
                     </Form.Item>
                 </Form>
             </Row>
+
             {/*table*/}
             <Row className="table">
                 <Table style={{width: '100%', height: '100%'}}   bordered={true}  columns={columns} dataSource={data} rowSelection={{type: 'checkbox', ...rowSelection}} onChange={handleTableChange}  pagination={tableParams.pagination}  rowKey={(record) => record.id} loading={loading} pagination={false} scroll={{ y: '65vh' }}  />
             </Row>
+
             {/*额外操作*/}
+
                 <Row className="pagination-operator">
                     <Col span={12}>                <Button type="primary" danger={true} disabled={selectedRowKeys.length == 0}>批量删除</Button>
                     </Col>

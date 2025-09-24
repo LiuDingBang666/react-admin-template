@@ -5,7 +5,7 @@
  * @date: 2025/9/23 17:37
  */
 import {Col, Divider, Row} from "antd";
-import DescriptionItem from "@/pages/system/components/description-item.tsx";
+import DescriptionItem from "@/components/form/description-item.tsx";
 
 export default function Detail() {
     return (
