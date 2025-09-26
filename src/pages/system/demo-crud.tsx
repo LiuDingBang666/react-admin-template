@@ -14,7 +14,6 @@ import {
     Row,
     Space,
     Table,
-    type TablePaginationConfig,
     type TableProps,
     Tag
 } from "antd";
@@ -78,7 +77,7 @@ export default function DemoCrud() {
         setLoading(true);
         setTimeout(() => {
             const data= Array.from({length: 200}).map((_value, index) => ( {
-                id: index,
+                id: String(index), // 修正为字符串，符合 DataType 类型
                 name: '张三',
                 age: 32,
                 address: '湖南长沙',
@@ -320,7 +319,12 @@ export default function DemoCrud() {
 
             {/*table*/}
             <Row className="table">
-                <Table style={{width: '100%', height: '100%'}}   bordered={true}  columns={columns} dataSource={data} rowSelection={{type: 'checkbox', ...rowSelection}} onChange={handleTableChange}  pagination={tableParams.pagination}  rowKey={(record) => record.id} loading={loading} pagination={false} scroll={{ y: '65vh' }}  />
+                <Table
+                    style={{width: '100%', height: '100%'}}
+                    bordered={true}
+                    columns={columns}
+                    dataSource={data}
+                    />
             </Row>
 
             {/*额外操作*/}

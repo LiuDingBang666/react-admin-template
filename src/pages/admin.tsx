@@ -17,7 +17,6 @@ import {Dropdown, type MenuProps, message, Space} from 'antd';
 import { Breadcrumb, Layout, Menu, theme, Image } from 'antd';
 import {Outlet, useLocation, useNavigate, useParams, useSearchParams} from "react-router-dom";
 import {useUserStore} from "@/store/user-store.ts";
-import * as sea from "node:sea";
 
 const { Header, Content, Sider } = Layout;
 

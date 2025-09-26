@@ -1,13 +1,23 @@
 @import "antd/dist/reset.css";
 
 :root {
-
+  /* 可添加全局主题变量 */
 }
 
 
-#root {
-    margin: 0px;
-    padding: 0px;
+/* 正确引入字体：使用相对路径（Vite 不支持在纯 CSS 中使用 ~@ 前缀） */
+@font-face {
+    font-family: 'SourceHanSansSC';
+    src: url('./assets/fonts/SourceHanSansSC-VF.ttf') format('truetype');
+    font-style: normal;
+    font-display: swap;
+}
+
+html, body, #root {
+    margin: 0;
+    padding: 0;
     width: 100%;
     height: 100%;
+    font-family: 'SourceHanSansSC', 'Arial', serif;
 }
+

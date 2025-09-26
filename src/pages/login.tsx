@@ -45,7 +45,7 @@ export default function Login(): ReactNode {
   return (
    <Row className="login" justify={"center"} align={"middle"}>
        <Col className="login-form simple" xs={22} sm={16} md={10} lg={7} xl={6}>
-           <h1>后台管理系统</h1>
+           <h1>中国智造</h1>
            <Form
                name="basic"
                layout={isMobile ? 'vertical' : 'horizontal'}
