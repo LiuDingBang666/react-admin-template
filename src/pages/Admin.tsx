@@ -5,7 +5,7 @@
  * @date: 2025/9/23 13:13
  */
 
-import React, {type ReactNode} from 'react';
+import React, {type ReactElement, type ReactNode} from 'react';
 import './admin.scss'
 import {
     DownOutlined, InfoCircleOutlined,
@@ -20,7 +20,7 @@ import {useUserStore} from "@/store/user-store.ts";
 
 const { Header, Content, Sider } = Layout;
 
-const Admin = (): ReactNode => {
+const Admin = (): ReactElement => {
 
     const {name} = useUserStore()
 

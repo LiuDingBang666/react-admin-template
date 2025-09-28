@@ -10,9 +10,9 @@ import type { FormProps } from 'antd';
 import {useNavigate} from "react-router-dom";
 import type { ValidateErrorEntity} from "rc-field-form/lib/interface";
 import {useUserStore} from "@/store/user-store.ts";
-import type {ReactNode} from "react";
+import type {ReactElement, } from "react";
 
-export default function Login(): ReactNode {
+export default function Login(): ReactElement {
     // Define form values type
     interface LoginFormValues {
         username: string;

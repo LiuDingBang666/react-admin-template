@@ -8,7 +8,7 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig, AxiosError } from 'axios';
 import { message } from 'antd';
-import type { RequestParams } from "@/entity/common.ts";
+import type {BaseResult, RequestParams } from "@/entity/common.ts";
 
 /**
  * 统一的业务成功 code（可根据后端规范修改）
@@ -29,59 +29,6 @@ function getToken(): string | undefined {
 }
 
 /**
- * 取消重复请求：key 生成函数
- */
-function buildReqKey(config: AxiosRequestConfig) {
-  const {method, url, params, data} = config;
-  // data 可能是 FormData，尝试安全序列化
-  let dataStr = '';
-  if (data instanceof FormData) {
-    const obj: Record<string, unknown> = {};
-    data.forEach((v, k) => { obj[k] = v; });
-    dataStr = JSON.stringify(obj);
-  } else if (typeof data === 'string') {
-    dataStr = data;
-  } else if (data) {
-    try { dataStr = JSON.stringify(data); } catch { dataStr = String(data); }
-  }
-  let paramsStr = '';
-  if (params) {
-    try { paramsStr = JSON.stringify(params); } catch { paramsStr = String(params); }
-  }
-  return [method, url, paramsStr, dataStr].join('&');
-}
-
-const pendingMap = new Map<string, AbortController>();
-
-/**
- * 添加请求
- * @param config
- */
-function addPending(config: InternalAxiosRequestConfig) {
-  const key = buildReqKey(config);
-  if (pendingMap.has(key)) {
-    // 已有同样请求 -> 取消前一个
-    const controller = pendingMap.get(key)!;
-    controller.abort();
-    pendingMap.delete(key);
-  }
-  const controller = new AbortController();
-  config.signal = controller.signal;
-  pendingMap.set(key, controller);
-}
-
-/**
- * 移除请求
- * @param config
- */
-function removePending(config: AxiosRequestConfig) {
-  const key = buildReqKey(config);
-  if (pendingMap.has(key)) {
-    pendingMap.delete(key);
-  }
-}
-
-/**
  * 创建 axios 实例
  */
 const instance: AxiosInstance = axios.create({
@@ -94,16 +41,14 @@ const instance: AxiosInstance = axios.create({
  */
 instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    addPending(config);
 
-    // 加 token
+    // todo 加 token
     const token = getToken();
     if (token && config.headers) {
       config.headers.Authorization = config.headers.Authorization || `Bearer ${token}`;
     }
 
-    // 可加入自定义 headers
-    // config.headers['X-Requested-With'] = 'XMLHttpRequest';
+    config.headers['Authorization-Token'] = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1OTExMDE3NH0.siNCdKcbhNTGlrhHLIzhlDVHNDDoetiNoIScUE2XsO_zVRQxMkFcVI1B3fE7nNCVL2MT8Rf2fUz0gSJVvYzHOQ'
     return config;
   },
   (error) => Promise.reject(error),
@@ -114,7 +59,6 @@ instance.interceptors.request.use(
  */
 instance.interceptors.response.use(
   (response) => {
-    removePending(response.config);
 
     const cfg = response.config as RequestConfig;
 
@@ -124,10 +68,9 @@ instance.interceptors.response.use(
         const successMsg = typeof cfg.showSuccess === 'string' ? cfg.showSuccess : (cfg.successMessage || '下载成功');
         message.success(successMsg);
       }
-      return response.data as unknown;
+      return response.data ;
     }
-
-    const respData: unknown = response.data;
+    const respData = response.data;
     if (respData && SUCCESS_CODES.includes(respData.code)) {
       if (cfg.showSuccess) {
         const successMsg = typeof cfg.showSuccess === 'string'
@@ -135,7 +78,7 @@ instance.interceptors.response.use(
           : (cfg.successMessage || respData.message || '操作成功');
         message.success(successMsg);
       }
-      return respData.data as unknown;
+      return respData;
     }
     // 业务错误
     const errObj = {
@@ -154,9 +97,6 @@ instance.interceptors.response.use(
     return Promise.reject(errObj);
   },
   (error: AxiosError) => {
-    if (error.config) {
-      removePending(error.config);
-    }
     const cfg = (error.config || {}) as RequestConfig;
     // 取消请求
     if (axios.isCancel(error) || error.name === 'CanceledError') {
@@ -203,35 +143,35 @@ export interface RequestFeedbackOptions {
   /** 自定义失败消息优先级高于错误内置 message */
   errorMessage?: string;
 }
-export type RequestConfig<T = unknown> = AxiosRequestConfig<T> & RequestFeedbackOptions;
+export type RequestConfig<T = object> = AxiosRequestConfig<T> & RequestFeedbackOptions;
 
 /**
  * 通用请求方法（保留 AxiosRequestConfig 能力）
  */
-export function request<T = unknown>(config: RequestConfig): Promise<T> {
-  return instance.request<unknown, T>(config);
+export function request<T>(config: RequestConfig): Promise<T> {
+  return instance.request<BaseResult<T>, T>(config);
 }
 
 
 //  快捷方法
-export function get<T = unknown>(url: string, params?: RequestParams, config?: RequestConfig) {
+export function get<T>(url: string, params?: RequestParams, config?: RequestConfig) {
   return request<T>({url, method: 'GET', params, ...(config || {})});
 }
-export function post<T = unknown>(url: string, data?: RequestParams, config?: RequestConfig) {
+export function post<T>(url: string, data?: RequestParams, config?: RequestConfig) {
   return request<T>({url, method: 'POST', data, ...(config || {})});
 }
-export function put<T = unknown>(url: string, data?: RequestParams, config?: RequestConfig) {
+export function put<T>(url: string, data?: RequestParams, config?: RequestConfig) {
   return request<T>({url, method: 'PUT', data, ...(config || {})});
 }
-export function patch<T = unknown>(url: string, data?: RequestParams, config?: RequestConfig) {
+export function patch<T>(url: string, data?: RequestParams, config?: RequestConfig) {
   return request<T>({url, method: 'PATCH', data, ...(config || {})});
 }
-export function del<T = unknown>(url: string, params?: RequestParams, config?: RequestConfig) {
+export function del<T>(url: string, params?: RequestParams, config?: RequestConfig) {
   return request<T>({url, method: 'DELETE', params, ...(config || {})});
 }
 
 // 文件上传
-export function upload<T = unknown>(url: string, formData: FormData, config?: RequestConfig) {
+export function upload<T>(url: string, formData: FormData, config?: RequestConfig) {
   return request<T>({
     url,
     method: 'POST',

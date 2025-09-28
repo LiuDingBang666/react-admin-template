@@ -4,15 +4,15 @@
  * @author: mayn
  * @date: 2025/9/28 11:23
  */
-import type {JSX} from "react";
+import React, {type ReactElement} from "react";
 
 
 interface DescriptionItemProps {
     title: string;
-    content: React.ReactNode;
+    content: ReactElement;
 }
 
-export function Detail({ title, content }: DescriptionItemProps): JSX.Element {
+const FormDetail: React.FC<DescriptionItemProps> = function FormDetail({ title, content }) {
     return (
         <div className="site-description-item-profile-wrapper">
             <p className="site-description-item-profile-p-label">{title}:</p>
@@ -20,3 +20,4 @@ export function Detail({ title, content }: DescriptionItemProps): JSX.Element {
         </div>
     );
 }
+export default FormDetail;

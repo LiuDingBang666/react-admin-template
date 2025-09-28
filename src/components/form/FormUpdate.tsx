@@ -6,7 +6,7 @@ interface UpdateProps<T extends BaseEntity> {
     onClose: () => void;
 }
 
-const Update = function Update(props:UpdateProps<BaseEntity>){
+const FormUpdate = function Update(props:UpdateProps<BaseEntity>){
 
     const { Option } = Select;
 
@@ -70,4 +70,4 @@ const Update = function Update(props:UpdateProps<BaseEntity>){
         </Form>
     );
 }
-export default Update;
+export default FormUpdate;

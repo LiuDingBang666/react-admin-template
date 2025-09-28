@@ -16,38 +16,24 @@ import {
 } from "antd";
 import '@/assets/styles/crud.scss'
 import  type {TableProps} from 'antd'
-import Detail from "@/pages/system/components/Detail.tsx";
-import Update from "@/pages/system/components/Update.tsx";
+import FormDetail from "@/components/form/FormDetail.tsx";
+import FormUpdate from "@/components/form/FormUpdate.tsx";
 import BaseFormItem from "@/components/form/BaseFormItem.tsx";
-import {type JSX, type ReactNode, useCallback, useEffect, useMemo, useState} from "react";
-import type {BaseEntity, BasePage, BaseResult} from "@/entity/common.ts";
+import {type CSSProperties, type JSX, type ReactElement,  useCallback, useEffect, useMemo, useState} from "react";
+import type {BaseEntity, BasePage, BaseResult, RequestParams} from "@/entity/common.ts";
 import {PermissionWrapComponent} from "@/components/PermissionWrapComponent.tsx";
 
 type OperatorType = '详情' | '修改' | '新增'
 
 interface BaseTableProps<T extends BaseEntity> {
-    // 查询参数-请求时将合并
-    searchParams: object
+    // 基础配置
+
     // 搜索栏配置
     searchs: Array<unknown>
     // 表格列
     columns: TableProps<BaseEntity>['columns']
-    // 表格名称
-    name: string
-    // 权限前缀
-    permissionPrefix?: string
-
-    // 常用操作
-
-    // 分页api
-    api: (params: object) => Promise<never>
-    // 导入api
-    importApi?: (params: never) => Promise<never>
-    // 导出api
-    exportApi?: (params: object) => Promise<never>
-    // 批量删除api
-    deleteApi?: (ids: Array<number | string>) => Promise<never>
-
+    // 搜索栏的操作
+    searchOperator?: Array<JSX.Element>
     // 扩展操作
     operator?: Array<{
         // 名称
@@ -58,10 +44,29 @@ interface BaseTableProps<T extends BaseEntity> {
         show?: (record: T) => boolean
         // 权限值
         permission?: string
+        // 样式
+        style?: CSSProperties
     }>
+    // 查询参数-请求时将合并
+    searchParams?: object
+
+    // 权限
+
+    // 表格名称
+    name: string
+    // 权限前缀
+    permissionPrefix?: string
 
     // 内置CRUD操作
 
+    // 分页api
+    api: (params: RequestParams) => Promise<unknown>
+    // 导入api
+    importApi?: (params: never) => Promise<never>
+    // 导出api
+    exportApi?: (params: object) => Promise<never>
+    // 批量删除api
+    deleteApi?: (ids: Array<number | string>) => Promise<never>
     // 新增api
     addApi?: (params: never) => Promise<never>
     // 修改api
@@ -70,6 +75,7 @@ interface BaseTableProps<T extends BaseEntity> {
     detailApi?: (id: number | string) => Promise<never>
     // 详情配置
     detail?: Array<unknown>
+
 
     // 插槽操作-自定义情况
     slots?: {
@@ -128,7 +134,7 @@ function BaseTable(props: BaseTableProps<BaseEntity>) {
             if (props.api !== undefined) {
                 setData([]);
                 setLoading(true);
-                const {data}: BaseResult<BasePage<object>> = await props.api({...tableParams.searchParams, ...extraParams})
+                const {data}: BaseResult<BasePage<object>> = await props.api({...tableParams.searchParams,...props.searchParams, ...extraParams, pageNum: tableParams.pagination.current, pageSize: tableParams.pagination.pageSize})
                 setData(() => data.list as Array<BaseEntity>);
                 setLoading(false);
                 setTableParams({
@@ -216,6 +222,21 @@ function BaseTable(props: BaseTableProps<BaseEntity>) {
                         </Popconfirm>
 
                     }
+                    {
+                        props.operator?.map(item => {
+                            return (
+                                <a
+                                    key={item.name}
+                                    onClick={() => item.callback?.(record)}
+                                    style={{
+                                        display: item.show?.(record) ? 'inline-block' : 'none'
+                                    }}
+                                >
+                                    {item.name}
+                                </a>
+                            )
+                        })
+                    }
                 </Space>
             ),
             width: 200,
@@ -275,8 +296,8 @@ function BaseTable(props: BaseTableProps<BaseEntity>) {
     };
 
     // 渲染内容
-    const renderContent = useMemo<ReactNode>(() => {
-        return (type === '新增' ? props.slots?.update ?? <Update record={activeRecord} onClose={onClose}/> : props.slots?.detail ?? <Detail record={activeRecord}/>) as ReactNode
+    const renderContent = useMemo<ReactElement>(() => {
+        return (type === '新增' ? props.slots?.update ?? <FormUpdate record={activeRecord} onClose={onClose}/> : props.slots?.detail ?? <FormDetail record={activeRecord}/>) as ReactElement
     }, [activeRecord, props.slots?.detail, props.slots?.update, type])
 
     return (
@@ -332,6 +353,9 @@ function BaseTable(props: BaseTableProps<BaseEntity>) {
                                     </Button>
                                 </Form.Item>
                             })
+                        }
+                        {
+                            props.searchOperator
                         }
                     </Form>
                 </Row>
