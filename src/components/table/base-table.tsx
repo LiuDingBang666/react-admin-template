@@ -4,21 +4,24 @@
  * @author: mayn
  * @date: 2025/9/26 15:11
  */
-import {Button, Col, Drawer, Form, Input, Pagination, Row, Table} from "antd";
+import {Button, Col, Drawer, Form, Input, Pagination, Row, Table, TableColumnsType} from "antd";
 import Detail from "@/pages/system/components/detail.tsx";
 import Update from "@/pages/system/components/update.tsx";
 
-interface BaseTableProps {
+interface BaseTableProps<T> {
     // 查询参数
     searchParams: object
-    // 表格数据
-    data: object[]
     // 表格列
-    columns: object[]
+    columns: Array<TableColumnsType<T>>
     // 表格操作
-    operator?: object[]
-    // 表格操作回调
-    operatorCallback?: (record: object) => void
+    operator?: Array<{
+        // 名称
+        name: string
+        // 回调
+        callback?: (record: T) => void
+    }>
+    // 分页api
+    api: (params: never) => Promise<never>
 }
 
 function BaseTable(props: BaseTableProps) {
@@ -89,7 +92,6 @@ function BaseTable(props: BaseTableProps) {
                 </Row>
 
                 {/*额外操作*/}
-
                 <Row className="pagination-operator">
                     <Col span={12}>                <Button type="primary" danger={true} disabled={selectedRowKeys.length == 0}>批量删除</Button>
                     </Col>
