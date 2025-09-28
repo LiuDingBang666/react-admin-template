@@ -5,10 +5,10 @@
  * @date: 2025/9/23 14:12
  */
 import BaseTable from "@/components/table/BaseTable.tsx";
-import {getLoginLogById, pageLoginLog} from "@/api/system/login-log.ts";
+import {getLoginLogById, pageLoginLog, updateLoginLog} from "@/api/system/login-log.ts";
 import columns from "@/pages/system/login-log/columns.tsx";
 export default function SysLoginLog() {
    return (
-      <BaseTable searchs={[]} columns={columns} name="登录日志" api={pageLoginLog} detailApi={getLoginLogById}></BaseTable>
+      <BaseTable searchs={[]} columns={columns} name="登录日志" api={pageLoginLog} detailApi={getLoginLogById} updateApi={updateLoginLog}></BaseTable>
    )
 }

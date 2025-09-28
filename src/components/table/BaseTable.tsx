@@ -17,7 +17,7 @@ import '@/assets/styles/crud.scss'
 import  type {TableProps} from 'antd'
 import FormDetail, {type FormDetailProps} from "@/components/form/FormDetail.tsx";
 import FormUpdate from "@/components/form/FormUpdate.tsx";
-import BaseFormItem from "@/components/form/BaseFormItem.tsx";
+import BaseFormItem, {type FormItemProps} from "@/components/form/BaseFormItem.tsx";
 import {type CSSProperties, type JSX, type ReactElement,  useCallback, useEffect, useMemo, useRef, useState} from "react";
 import type {BaseEntity, BasePage, BaseResult, RequestParams} from "@/entity/common.ts";
 import {PermissionWrapComponent} from "@/components/PermissionWrapComponent.tsx";
@@ -25,28 +25,30 @@ import BaseDrawer, {type BaseDrawerRef} from "@/components/drawer/BaseDrawer.tsx
 
 type OperatorType = '详情' | '修改' | '新增'
 
+interface OperatorProps<T extends BaseEntity>{
+    // 名称
+    name: string
+    // 回调
+    callback?: (record: T) => void
+    // 是否显示
+    show?: (record: T) => boolean
+    // 权限值
+    permission?: string
+    // 样式
+    style?: CSSProperties
+}
+
 interface BaseTableProps<T extends BaseEntity> {
     // 基础配置
 
     // 搜索栏配置
-    searchs: Array<unknown>
+    searchs: Array<FormItemProps<T>>
     // 表格列
     columns: TableProps<T>['columns']
     // 搜索栏的操作
     searchOperator?: Array<JSX.Element>
     // 扩展操作
-    operator?: Array<{
-        // 名称
-        name: string
-        // 回调
-        callback?: (record: T) => void
-        // 是否显示
-        show?: (record: T) => boolean
-        // 权限值
-        permission?: string
-        // 样式
-        style?: CSSProperties
-    }>
+    operator?: Array<OperatorProps<T>>
     // 查询参数-请求时将合并
     searchParams?: object
 
@@ -54,6 +56,7 @@ interface BaseTableProps<T extends BaseEntity> {
 
     // 表格名称
     name: string
+
     // 权限前缀
     permissionPrefix?: string
 
@@ -75,6 +78,8 @@ interface BaseTableProps<T extends BaseEntity> {
     detailApi?: (id: string) => Promise<T>
     // 详情配置
     detail?: Array<FormDetailProps<T>>
+    // 新增/修改配置
+    updateFields?: Array<FormItemProps<T>>
 
 
     // 插槽操作-自定义情况
@@ -96,7 +101,7 @@ interface TableParams {
 }
 
 
-function BaseTable(props: BaseTableProps<T>) {
+function BaseTable(props: BaseTableProps<never>) {
 
     // page
     const [data, setData] = useState<Array<BaseEntity>>([]);
@@ -134,8 +139,7 @@ function BaseTable(props: BaseTableProps<T>) {
             if (props.api !== undefined) {
                 setData([]);
                 setLoading(true);
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-expect-error
+                 
                 const {data}: BaseResult<BasePage<BaseEntity>> = await props.api({...tableParams.searchParams,...props.searchParams, ...extraParams, pageNum: tableParams.pagination.current, pageSize: tableParams.pagination.pageSize})
                 setData(() => data.list as Array<BaseEntity>);
                 setLoading(false);
@@ -183,6 +187,7 @@ function BaseTable(props: BaseTableProps<T>) {
     }
 
     // config
+    // @ts-disable-next-line
     const columns: TableProps<BaseEntity>['columns'] = [
         {
             title: '序号',
@@ -194,8 +199,7 @@ function BaseTable(props: BaseTableProps<T>) {
             },
             width: 80,
         },
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
+         
         ...props.columns,
         {
             title: '操作',
@@ -375,7 +379,7 @@ function BaseTable(props: BaseTableProps<T>) {
                         loading={loading}
                         rowSelection={rowSelection}
                         scroll={{
-                            y: "65vh",
+                            y: "64vh",
                         }}
                         pagination={false}
                     />

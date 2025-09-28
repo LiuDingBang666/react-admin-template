@@ -5,8 +5,9 @@
  * @date: 2025/9/28 11:23
  */
 import  {forwardRef, type JSX, useImperativeHandle, useState} from "react";
-import {Drawer} from "antd";
+import {Col, Drawer, Row, Space} from "antd";
 import type {BaseEntity} from "@/entity/common.ts";
+import {ClockCircleOutlined, UserAddOutlined, UsergroupAddOutlined} from "@ant-design/icons";
 
 // 定义属性接口
 interface BaseDrawerProps {
@@ -41,10 +42,31 @@ const BaseDrawer = forwardRef<BaseDrawerRef, BaseDrawerProps>( (props, refs) => 
     }))
 
     return (
-        <Drawer width={640} open={open} placement="right" onClose={onClose}>
-            <p className="site-description-item-profile-p" style={{ marginBottom: 24 }}>
-                {title}
-            </p>
+        <Drawer width={640} open={open} placement="right" onClose={onClose} title={title}>
+            {
+                props.record && (
+                   <>
+                   <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+                       <Row justify={"center"}>
+                           <Col span={12}>
+                               <div><UserAddOutlined /> 创建人: {props.record.createdBy ?? '-'}</div>
+                           </Col>
+                           <Col span={12}>
+                               <div><ClockCircleOutlined /> 创建时间: {props.record.createdAt ?? '-'}</div>
+                           </Col>
+                       </Row>
+                       <Row justify={"center"}>
+                           <Col span={12}>
+                               <div><UsergroupAddOutlined /> 修改人: {props.record.updatedBy ?? '-'}</div>
+                           </Col>
+                           <Col span={12}>
+                               <div><ClockCircleOutlined /> 修改时间: {props.record.updatedAt ?? '-'}</div>
+                           </Col>
+                       </Row>
+                   </Space>
+                   </>
+                )
+            }
             {children}
         </Drawer>
     );
