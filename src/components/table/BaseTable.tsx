@@ -7,7 +7,6 @@
 import {
     Button,
     Col,
-    Drawer,
     Form,
     type GetProp, message,
     Pagination, Popconfirm,
@@ -16,12 +15,13 @@ import {
 } from "antd";
 import '@/assets/styles/crud.scss'
 import  type {TableProps} from 'antd'
-import FormDetail from "@/components/form/FormDetail.tsx";
+import FormDetail, {type FormDetailProps} from "@/components/form/FormDetail.tsx";
 import FormUpdate from "@/components/form/FormUpdate.tsx";
 import BaseFormItem from "@/components/form/BaseFormItem.tsx";
-import {type CSSProperties, type JSX, type ReactElement,  useCallback, useEffect, useMemo, useState} from "react";
+import {type CSSProperties, type JSX, type ReactElement,  useCallback, useEffect, useMemo, useRef, useState} from "react";
 import type {BaseEntity, BasePage, BaseResult, RequestParams} from "@/entity/common.ts";
 import {PermissionWrapComponent} from "@/components/PermissionWrapComponent.tsx";
+import BaseDrawer, {type BaseDrawerRef} from "@/components/drawer/BaseDrawer.tsx";
 
 type OperatorType = '详情' | '修改' | '新增'
 
@@ -31,7 +31,7 @@ interface BaseTableProps<T extends BaseEntity> {
     // 搜索栏配置
     searchs: Array<unknown>
     // 表格列
-    columns: TableProps<BaseEntity>['columns']
+    columns: TableProps<T>['columns']
     // 搜索栏的操作
     searchOperator?: Array<JSX.Element>
     // 扩展操作
@@ -62,19 +62,19 @@ interface BaseTableProps<T extends BaseEntity> {
     // 分页api
     api: (params: RequestParams) => Promise<unknown>
     // 导入api
-    importApi?: (params: never) => Promise<never>
+    importApi?: (params: never) => Promise<boolean>
     // 导出api
-    exportApi?: (params: object) => Promise<never>
+    exportApi?: (params: object) => Promise<string>
     // 批量删除api
-    deleteApi?: (ids: Array<number | string>) => Promise<never>
+    deleteApi?: (ids: Array< string>) => Promise<boolean>
     // 新增api
-    addApi?: (params: never) => Promise<never>
+    addApi?: (params: never) => Promise<T>
     // 修改api
-    updateApi?: (params: never) => Promise<never>
+    updateApi?: (params: never) => Promise<T>
     // 详情api
-    detailApi?: (id: number | string) => Promise<never>
+    detailApi?: (id: string) => Promise<T>
     // 详情配置
-    detail?: Array<unknown>
+    detail?: Array<FormDetailProps<T>>
 
 
     // 插槽操作-自定义情况
@@ -96,7 +96,7 @@ interface TableParams {
 }
 
 
-function BaseTable(props: BaseTableProps<BaseEntity>) {
+function BaseTable(props: BaseTableProps<T>) {
 
     // page
     const [data, setData] = useState<Array<BaseEntity>>([]);
@@ -134,7 +134,9 @@ function BaseTable(props: BaseTableProps<BaseEntity>) {
             if (props.api !== undefined) {
                 setData([]);
                 setLoading(true);
-                const {data}: BaseResult<BasePage<object>> = await props.api({...tableParams.searchParams,...props.searchParams, ...extraParams, pageNum: tableParams.pagination.current, pageSize: tableParams.pagination.pageSize})
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
+                const {data}: BaseResult<BasePage<BaseEntity>> = await props.api({...tableParams.searchParams,...props.searchParams, ...extraParams, pageNum: tableParams.pagination.current, pageSize: tableParams.pagination.pageSize})
                 setData(() => data.list as Array<BaseEntity>);
                 setLoading(false);
                 setTableParams({
@@ -173,7 +175,7 @@ function BaseTable(props: BaseTableProps<BaseEntity>) {
     // 批量删除
     async function handlerDelBatchConfirm() {
         if (props.deleteApi !== undefined && selectedRowKeys.length > 0) {
-            await props.deleteApi(selectedRowKeys as Array<number | string>)
+            await props.deleteApi(selectedRowKeys as Array<string>)
             message.success('批量删除成功')
             setSelectedRowKeys([])
             await fetchData()
@@ -270,7 +272,7 @@ function BaseTable(props: BaseTableProps<BaseEntity>) {
 
 
     // 详情及更新
-    const [open, setOpen] = useState(false);
+
     // 当前操作数据
     const [activeRecord, setActiveRecord] = useState<BaseEntity | null>({} as BaseEntity);
     // 操作类型
@@ -279,25 +281,27 @@ function BaseTable(props: BaseTableProps<BaseEntity>) {
     // 打开抽屉
     const showDrawer = async (type: OperatorType, record: BaseEntity | null = null) => {
         setType(type)
-        setOpen(true);
+        drawerRef.current?.open()
         if (record) {
             if (props.detailApi !== undefined) {
                const {data} = await props.detailApi(record.id)
                setActiveRecord(data)
             } else {
-                setActiveRecord(record)
+               setActiveRecord(record)
             }
         }
     };
 
     // 关闭抽屉
     const onClose = () => {
-        setOpen(false);
+        drawerRef.current?.close()
     };
+
+    const drawerRef = useRef<BaseDrawerRef>(null)
 
     // 渲染内容
     const renderContent = useMemo<ReactElement>(() => {
-        return (type === '新增' ? props.slots?.update ?? <FormUpdate record={activeRecord} onClose={onClose}/> : props.slots?.detail ?? <FormDetail record={activeRecord}/>) as ReactElement
+        return (type === '新增' ? props.slots?.update ?? <FormUpdate record={activeRecord} onClose={onClose}/> : props.slots?.detail ?? <FormDetail record={activeRecord} config={props.detail}/>) as ReactElement
     }, [activeRecord, props.slots?.detail, props.slots?.update, type])
 
     return (
@@ -370,6 +374,10 @@ function BaseTable(props: BaseTableProps<BaseEntity>) {
                         dataSource={data}
                         loading={loading}
                         rowSelection={rowSelection}
+                        scroll={{
+                            y: "65vh",
+                        }}
+                        pagination={false}
                     />
                 </Row>
 
@@ -398,12 +406,9 @@ function BaseTable(props: BaseTableProps<BaseEntity>) {
                 </Row>
 
                 {/* 更新 */}
-                <Drawer width={640} placement="right" closable={false} onClose={onClose} open={open}>
-                    <p className="site-description-item-profile-p" style={{ marginBottom: 24 }}>
-                        {props.name} {type}
-                    </p>
+                <BaseDrawer ref={drawerRef} title={props.name + type} onClose={onClose} record={activeRecord}>
                     {renderContent}
-                </Drawer>
+                </BaseDrawer>
             </>
     )
 }

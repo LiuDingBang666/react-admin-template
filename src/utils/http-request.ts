@@ -13,7 +13,7 @@ import type {BaseResult, RequestParams } from "@/entity/common.ts";
 /**
  * 统一的业务成功 code（可根据后端规范修改）
  */
-const SUCCESS_CODES: Array<number | string> = [0, 200, 20000];
+const SUCCESS_CODES: Array<string> = [0, 200, 20000];
 
 /**
  * 默认超时时间

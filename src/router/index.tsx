@@ -9,7 +9,7 @@ import {lazy} from "react";
 
 const Login = lazy(() => import("@/pages/Login.tsx"));
 const Admin = lazy(() => import("@/pages/Admin.tsx"));
-const DemoCrud = lazy(() => import("@/pages/system/SysLoginLog"))
+const DemoCrud = lazy(() => import("@/pages/system/login-log/SysLoginLog.tsx"))
 
 
 const router = createBrowserRouter([

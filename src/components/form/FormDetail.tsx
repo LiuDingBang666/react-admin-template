@@ -5,19 +5,48 @@
  * @date: 2025/9/28 11:23
  */
 import React, {type ReactElement} from "react";
+import {Col, Divider, Row} from "antd";
+import type {BaseEntity} from "@/entity/common.ts";
 
-
-interface DescriptionItemProps {
-    title: string;
-    content: ReactElement;
+export interface FormDetailProps<T extends BaseEntity>  {
+    record: T
+    config?: Array<FormDetailConfigProps<T>>
+}
+interface FormDetailConfigProps<T extends BaseEntity> {
+    title: string
+    items: Array<FormItemProps<T>>
 }
 
-const FormDetail: React.FC<DescriptionItemProps> = function FormDetail({ title, content }) {
+interface FormItemProps<T> {
+    title: string
+    column: string
+    render?: (record: T) => ReactElement
+}
+
+
+const FormDetail: React.FC<FormDetailProps<BaseEntity>> = function FormDetail({ record, config }) {
     return (
-        <div className="site-description-item-profile-wrapper">
-            <p className="site-description-item-profile-p-label">{title}:</p>
-            {content}
-        </div>
-    );
+        <>
+            {
+                config && config.map((group, groupIdx, groups) => {
+                    <>
+                        {group.title &&   <p className="site-description-item-profile-p">{group.title}</p>}
+                        <Row>
+                            {
+                                group.items.map((item) => {
+                                    return   <Col span={12} key={item.title}>
+                                        <span className="site-description-item-profile-p-label">{item.title}</span>
+                                        {  (item.render ? item.render(record) : record[item.column]) as ReactElement}
+                                    </Col>
+                                    })
+                            }
+                        </Row>
+                        { groupIdx < groups.length - 1 && <Divider />}
+                    </>
+                })
+            }
+        </>
+    )
+
 }
 export default FormDetail;

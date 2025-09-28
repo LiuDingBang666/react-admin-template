@@ -33,44 +33,44 @@ interface RequestParams extends Partial<BasePageParams> {
 // 分页返回结果，继承分页参数
 interface BasePage<T> extends BasePageParams{
     // 总数
-    "total": number,
+    total: number,
     // 数据
-    "list": Array<T>
+    list: Array<T>
     // 总页数
-    "size": number,
+    size: number,
     // 开始行
-    "startRow": number,
+    startRow: number,
     // 结束行
-    "endRow": number,
+    endRow: number,
     // 是否分页
-    "pages": number,
+    pages: number,
     // 其他
-    "prePage": number,
+    prePage: number,
     // 下一页
-    "nextPage": number,
+    nextPage: number,
     // 是否第一页
-    "isFirstPage": boolean,
+    isFirstPage: boolean,
     // 是否最后一页
-    "isLastPage": boolean,
+    isLastPage: boolean,
     // 是否有上一页
-    "hasPreviousPage": boolean,
+    hasPreviousPage: boolean,
     // 是否有下一页
-    "hasNextPage": boolean,
+    hasNextPage: boolean,
     // 导航页码数
-    "navigatePages": number,
+    navigatePages: number,
     // 所有导航页号
-    "navigatepageNums":Array<number>
+    navigatepageNums:Array<number>
     // 第一页
-    "navigateFirstPage": number,
+    navigateFirstPage: number,
     // 最后一页
-    "navigateLastPage": number
+    navigateLastPage: number
 }
 
 
 
 interface BaseEntity {
     // 主键
-    id: number | string
+    id: string
     // 创建时间
     createdAt: string
     // 修改时间
