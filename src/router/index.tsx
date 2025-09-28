@@ -7,9 +7,9 @@
 import {createBrowserRouter} from "react-router-dom";
 import {lazy} from "react";
 
-const Login = lazy(() => import("@/pages/login.tsx"));
-const Admin = lazy(() => import("@/pages/admin.tsx"));
-const DemoCrud = lazy(() => import("@/pages/system/demo-crud.tsx"))
+const Login = lazy(() => import("@/pages/Login.tsx"));
+const Admin = lazy(() => import("@/pages/Admin.tsx"));
+const DemoCrud = lazy(() => import("@/pages/system/DemoCrud.tsx"))
 
 
 const router = createBrowserRouter([

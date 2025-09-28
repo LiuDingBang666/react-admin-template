@@ -1,26 +1,28 @@
-import React from 'react';
 import { Button, Form, Input, Select, Space } from 'antd';
+import type {BaseEntity} from "@/entity/common.ts";
 
-const { Option } = Select;
+interface UpdateProps<T extends BaseEntity> {
+    record: T | null
+    onClose: () => void;
+}
 
-const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
-};
+const Update = function Update(props:UpdateProps<BaseEntity>){
 
-const tailLayout = {
-    wrapperCol: { offset: 8, span: 16 },
-};
+    const { Option } = Select;
 
-// @ts-ignore
-const Update: React.FC = (props: { onClose: () => void }) => {
-
-
-
-    const onFinish = (values: any) => {
-        console.log(values);
+    const layout = {
+        labelCol: { span: 8 },
+        wrapperCol: { span: 16 },
     };
 
+    const tailLayout = {
+        wrapperCol: { offset: 8, span: 16 },
+    };
+
+
+    const onFinish = (values: object) => {
+        console.log(values);
+    };
 
     return (
         <Form
@@ -67,6 +69,5 @@ const Update: React.FC = (props: { onClose: () => void }) => {
             </Form.Item>
         </Form>
     );
-};
-
+}
 export default Update;

@@ -21,8 +21,9 @@ import {
 import '@/assets/styles/crud.scss'
 import {useEffect, useState} from "react";
 import type {SorterResult} from "antd/es/table/interface";
-import Detail from "@/pages/system/components/detail.tsx";
-import Update from "@/pages/system/components/update.tsx";
+import Detail from "@/pages/system/components/Detail.tsx";
+import Update from "@/pages/system/components/Update.tsx";
+import DataDetail from "@/pages/system/components/Detail.tsx";
 
 
 
@@ -65,7 +66,7 @@ export default function DemoCrud() {
         pagination: {
             current: 1,
             pageSize: 10,
-            total:0
+            total: 0
         },
         searchParams: {}
     });
@@ -76,13 +77,13 @@ export default function DemoCrud() {
         setData([]);
         setLoading(true);
         setTimeout(() => {
-            const data= Array.from({length: 200}).map((_value, index) => ( {
+            const data = Array.from({length: 200}).map((_value, index) => ({
                 id: String(index), // 修正为字符串，符合 DataType 类型
                 name: '张三',
                 age: 32,
                 address: '湖南长沙',
                 tags: ['超级管理员', '全栈工程师'],
-            })) as unknown as  DataType[]
+            })) as unknown as DataType[]
             setData(() => data);
             setLoading(false);
             setTableParams({
@@ -123,7 +124,7 @@ export default function DemoCrud() {
 
 
     // 删除
-    function handlerDelConfirm( record: DataType) {
+    function handlerDelConfirm(record: DataType) {
         console.log('删除确认', record);
         message.success('删除成功')
         setSelectedRowKeys([])
@@ -134,9 +135,9 @@ export default function DemoCrud() {
     // 详情及更新
     const [open, setOpen] = useState(false);
 
-    const [type, setType] = useState<'detail' | 'update'  | 'add'>('detail');
+    const [type, setType] = useState<'detail' | 'update' | 'add'>('detail');
 
-    const showDrawer = (type: 'detail' | 'update'  | 'add') => {
+    const showDrawer = (type: 'detail' | 'update' | 'add') => {
         setType(type)
         setOpen(true);
     };
@@ -360,7 +361,7 @@ export default function DemoCrud() {
                 <p className="site-description-item-profile-p" style={{ marginBottom: 24 }}>
                     User Profile {type}
                 </p>
-                {type === 'detail' ? Detail() : Update({onClose})}
+                {type === 'detail' ? DataDetail() : Update({onClose})}
             </Drawer>
             </>
     )

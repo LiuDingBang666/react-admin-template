@@ -67,4 +67,27 @@ interface BasePage<T> extends BasePageParams{
 }
 
 
-export type  { BaseResult, BasePage, BasePageParams, RequestParams }
+
+interface BaseEntity {
+    // 主键
+    id: number | string
+    // 创建时间
+    createdAt: string
+    // 修改时间
+    updatedAt: string
+    // 创建人
+    createdBy: string
+    // 修改人
+    updatedBy: string
+    // 逻辑删除标志
+    deleted: number
+    // 版本号
+    version: number
+    // 备注
+    remark: string
+    // 其他字段
+    [key:string]: unknown
+}
+
+
+export type  { BaseResult, BasePage, BasePageParams, RequestParams, BaseEntity }
