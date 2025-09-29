@@ -5,7 +5,7 @@
  * @date: 2025/9/26 15:11
  */
 import {
-    Button,
+    Button, type ButtonProps,
     Col,
     Form, type FormProps,
     type GetProp, message,
@@ -18,7 +18,7 @@ import  type {TableProps} from 'antd'
 import FormDetail, {type FormDetailConfigProps} from "@/components/form/FormDetail.tsx";
 import FormUpdate from "@/components/form/FormUpdate.tsx";
 import BaseFormItem, {type BaseFormItemProps} from "@/components/form/BaseFormItem.tsx";
-import {type CSSProperties, type JSX, type ReactElement,  useCallback, useEffect, useMemo, useRef, useState} from "react";
+import { type JSX, type ReactElement,  useCallback, useEffect, useMemo, useRef, useState} from "react";
 import type {BaseEntity, BasePage, BaseResult, RequestParams} from "@/entity/common.ts";
 import {PermissionWrapComponent} from "@/components/PermissionWrapComponent.tsx";
 import BaseDrawer, {type BaseDrawerRef} from "@/components/drawer/BaseDrawer.tsx";
@@ -29,13 +29,13 @@ interface OperatorProps<T extends BaseEntity>{
     // 名称
     name: string
     // 回调
-    callback?: (record: T) => void
+    callback?: (record: object) => void
     // 是否显示
     show?: (record: T) => boolean
     // 权限值
     permission?: string
     // 样式
-    style?: CSSProperties
+    style?: ButtonProps
 }
 
 interface BaseTableProps<T extends BaseEntity> {
@@ -49,6 +49,8 @@ interface BaseTableProps<T extends BaseEntity> {
     searchOperator?: Array<JSX.Element>
     // 扩展操作
     operator?: Array<OperatorProps<T>>
+    // 扩展批量操作
+    batchOperator?: Array<OperatorProps<T>>
     // 查询参数-请求时将合并
     searchParams?: object
 
@@ -424,8 +426,22 @@ function BaseTable(props: BaseTableProps<BaseEntity>) {
                             props.deleteApi &&
                             PermissionWrapComponent( {
                                 permission: props.permissionPrefix + '删除',
-                                children:   <Button type="primary" danger={true} disabled={selectedRowKeys.length == 0} onClick={handlerDelBatchConfirm}>批量删除</Button>
+                                children:
+                                    <Popconfirm
+                                        title="删除确认"
+                                        description="您确认要删除选中的记录嘛?"
+                                        onConfirm={() => handlerDelBatchConfirm()}
+                                        okText="确认"
+                                        cancelText="取消"
+                                    >
+                                    <Button type="primary" danger={true} disabled={selectedRowKeys.length == 0} >批量删除</Button>
+                                    </Popconfirm>
                             })
+                        }
+                        {
+                            props.batchOperator && props.batchOperator.map((item, index) => (
+                                <Button key={index} type="primary" {...item.style} disabled={selectedRowKeys.length == 0} onClick={() => item.callback?.({selectedRowKeys, clear: () => setSelectedRowKeys([])})}>{item.name}</Button>
+                            ))
                         }
                     </Col>
                     <Col span={12}>

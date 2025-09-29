@@ -43,7 +43,7 @@ const columns:TableProps<LoginLog>['columns'] = [
         title: "浏览器类型",
         dataIndex: "browser",
         key: "browser",
-        width: 120,
+        width: 300,
     },
     {
         title: "操作系统",
@@ -51,18 +51,18 @@ const columns:TableProps<LoginLog>['columns'] = [
         key: "browser",
         width: 120,
     },
-    {
-        title: "登录地点",
-        dataIndex: "loginLocation",
-        key: "loginLocation",
-        width: 120
-    },
-    {
-        title: "提示信息",
-        dataIndex: "msg",
-        key: "msg",
-        width: 120,
-    },
+    // {
+    //     title: "登录地点",
+    //     dataIndex: "loginLocation",
+    //     key: "loginLocation",
+    //     width: 120
+    // },
+    // {
+    //     title: "提示信息",
+    //     dataIndex: "msg",
+    //     key: "msg",
+    //     width: 120,
+    // },
 ]
 
 export default columns;

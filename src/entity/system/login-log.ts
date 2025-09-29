@@ -1,18 +1,12 @@
+import type {BaseEntity} from "@/entity/common.ts";
+
 /**
  * @name: 名称
  * @description: TODO 登录日志
  * @author: mayn
  * @date: 2number25/9/28 15:number8
  */
-export interface LoginLog {
-    "id": number
-    "createdAt": string
-    "updatedAt": string
-    "createdBy": number
-    "updatedBy": number
-    "deleted": number
-    "version": number
-    "remark": string
+export interface LoginLog extends BaseEntity{
     "userId": number
     "username": string
     "ip": string
