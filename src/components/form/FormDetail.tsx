@@ -9,10 +9,10 @@ import {Col, Divider, Row} from "antd";
 import type {BaseEntity} from "@/entity/common.ts";
 
 export interface FormDetailProps<T extends BaseEntity>  {
-    record: T
-    config?: Array<FormDetailConfigProps<T>>
+    record: T | null
+    config?: FormDetailConfigProps<BaseEntity>[] | null | undefined
 }
-interface FormDetailConfigProps<T extends BaseEntity> {
+export interface FormDetailConfigProps<T extends BaseEntity> {
     title: string
     items: Array<FormItemProps<T>>
 }
@@ -28,7 +28,7 @@ const FormDetail: React.FC<FormDetailProps<BaseEntity>> = function FormDetail({ 
     return (
         <>
             {
-                config && config.map((group, groupIdx, groups) => {
+                record && config && config.map((group, groupIdx, groups) => {
                     <>
                         {group.title &&   <p className="site-description-item-profile-p">{group.title}</p>}
                         <Row>

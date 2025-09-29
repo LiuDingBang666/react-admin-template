@@ -16,7 +16,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
       <ConfigProvider locale={zhCN}>
           <StyleProvider transformers={[px2rem]}>
-          <App />
+              <App />
           </StyleProvider>
       </ConfigProvider>
   </StrictMode>,

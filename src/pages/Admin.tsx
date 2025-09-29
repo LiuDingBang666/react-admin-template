@@ -5,7 +5,7 @@
  * @date: 2025/9/23 13:13
  */
 
-import React, {type ReactElement, type ReactNode} from 'react';
+import React, {type ReactElement} from 'react';
 import './admin.scss'
 import {
     DownOutlined, InfoCircleOutlined,

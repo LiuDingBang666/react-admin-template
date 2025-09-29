@@ -46,7 +46,7 @@ const BaseDrawer = forwardRef<BaseDrawerRef, BaseDrawerProps>( (props, refs) => 
             {
                 props.record && (
                    <>
-                   <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+                   <Space direction="vertical" size="middle" style={{ display: 'flex', marginBottom: 15 }}>
                        <Row justify={"center"}>
                            <Col span={12}>
                                <div><UserAddOutlined /> 创建人: {props.record.createdBy ?? '-'}</div>

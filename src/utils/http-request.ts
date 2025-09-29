@@ -13,7 +13,7 @@ import type {BaseResult, RequestParams } from "@/entity/common.ts";
 /**
  * 统一的业务成功 code（可根据后端规范修改）
  */
-const SUCCESS_CODES: Array<string> = [0, 200, 20000];
+const SUCCESS_CODES: Array<number> = [0, 200, 20000];
 
 /**
  * 默认超时时间
@@ -48,7 +48,7 @@ instance.interceptors.request.use(
       config.headers.Authorization = config.headers.Authorization || `Bearer ${token}`;
     }
 
-    config.headers['Authorization-Token'] = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1OTExMDE3NH0.siNCdKcbhNTGlrhHLIzhlDVHNDDoetiNoIScUE2XsO_zVRQxMkFcVI1B3fE7nNCVL2MT8Rf2fUz0gSJVvYzHOQ'
+    config.headers['Authorization-Token'] = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1OTIxMTg4OX0.SzKwopP5e8FMhnGDuN-Gfue8vPV4zKx6wLW4JgJXWWOGYJGA9124E9EPG-C8lghrwQW3sC-rmnZljCj8K3j03Q'
     return config;
   },
   (error) => Promise.reject(error),

@@ -7,6 +7,7 @@ import type {LoginLog} from "@/entity/system/login-log.ts";
  * @author: mayn
  * @date: 2025/9/28 15:57
  */
+
 const columns:TableProps<LoginLog>['columns'] = [
     {
         title: "登录账号",

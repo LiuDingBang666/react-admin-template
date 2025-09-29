@@ -7,7 +7,7 @@
 import {
     Button,
     Col,
-    Form,
+    Form, type FormProps,
     type GetProp, message,
     Pagination, Popconfirm,
     Row, Space,
@@ -15,9 +15,9 @@ import {
 } from "antd";
 import '@/assets/styles/crud.scss'
 import  type {TableProps} from 'antd'
-import FormDetail, {type FormDetailProps} from "@/components/form/FormDetail.tsx";
+import FormDetail, {type FormDetailConfigProps} from "@/components/form/FormDetail.tsx";
 import FormUpdate from "@/components/form/FormUpdate.tsx";
-import BaseFormItem, {type FormItemProps} from "@/components/form/BaseFormItem.tsx";
+import BaseFormItem, {type BaseFormItemProps} from "@/components/form/BaseFormItem.tsx";
 import {type CSSProperties, type JSX, type ReactElement,  useCallback, useEffect, useMemo, useRef, useState} from "react";
 import type {BaseEntity, BasePage, BaseResult, RequestParams} from "@/entity/common.ts";
 import {PermissionWrapComponent} from "@/components/PermissionWrapComponent.tsx";
@@ -42,7 +42,7 @@ interface BaseTableProps<T extends BaseEntity> {
     // 基础配置
 
     // 搜索栏配置
-    searchs: Array<FormItemProps<T>>
+    searchs: Array<BaseFormItemProps<T>>
     // 表格列
     columns: TableProps<T>['columns']
     // 搜索栏的操作
@@ -61,25 +61,35 @@ interface BaseTableProps<T extends BaseEntity> {
     permissionPrefix?: string
 
     // 内置CRUD操作
-
+    // 新增/修改表单配置
+    form?: FormProps
+    // 新增表单配置
+    formItems?: Array<BaseFormItemProps<T>>
     // 分页api
-    api: (params: RequestParams) => Promise<unknown>
+    api: (params: RequestParams) => Promise<BaseResult<BasePage<T>>>
     // 导入api
-    importApi?: (params: never) => Promise<boolean>
+    importApi?: (params: RequestParams) => Promise<boolean>
     // 导出api
-    exportApi?: (params: object) => Promise<string>
+    exportApi?: (params: RequestParams) => Promise<string>
     // 批量删除api
     deleteApi?: (ids: Array< string>) => Promise<boolean>
     // 新增api
-    addApi?: (params: never) => Promise<T>
+    addApi?: (params: RequestParams) => Promise<T>
     // 修改api
-    updateApi?: (params: never) => Promise<T>
+    updateApi?: (params: RequestParams) => Promise<T>
     // 详情api
     detailApi?: (id: string) => Promise<T>
     // 详情配置
-    detail?: Array<FormDetailProps<T>>
+    detail?: FormDetailConfigProps<BaseEntity>[] | null | undefined
     // 新增/修改配置
-    updateFields?: Array<FormItemProps<T>>
+    updateFields?: Array<BaseFormItemProps<T>>
+
+
+    // 事件
+    onSearchBefore?: (params: RequestParams) => void
+    onFormChange?: (params: RequestParams) => void
+    onDeleteBefore?: (params: Array<string>) => void
+    onUpdateBefore?: (params: RequestParams) => void
 
 
     // 插槽操作-自定义情况
@@ -101,7 +111,7 @@ interface TableParams {
 }
 
 
-function BaseTable(props: BaseTableProps<never>) {
+function BaseTable(props: BaseTableProps<BaseEntity>) {
 
     // page
     const [data, setData] = useState<Array<BaseEntity>>([]);
@@ -117,7 +127,10 @@ function BaseTable(props: BaseTableProps<never>) {
     });
 
     // 查询
-    async function onSearch(values: object) {
+    async function onSearch(values: RequestParams) {
+        if (props.onSearchBefore) {
+            props.onSearchBefore(values)
+        }
        fetchData(values)
     }
 
@@ -140,7 +153,7 @@ function BaseTable(props: BaseTableProps<never>) {
                 setData([]);
                 setLoading(true);
                  
-                const {data}: BaseResult<BasePage<BaseEntity>> = await props.api({...tableParams.searchParams,...props.searchParams, ...extraParams, pageNum: tableParams.pagination.current, pageSize: tableParams.pagination.pageSize})
+                const {data} = await props.api({...tableParams.searchParams,...props.searchParams, ...extraParams, pageNum: tableParams.pagination.current, pageSize: tableParams.pagination.pageSize})
                 setData(() => data.list as Array<BaseEntity>);
                 setLoading(false);
                 setTableParams({
@@ -170,6 +183,9 @@ function BaseTable(props: BaseTableProps<never>) {
     // 删除
     async function handlerDelConfirm(record: BaseEntity) {
         if (props.deleteApi !== undefined) {
+            if (props.onDeleteBefore) {
+                props.onDeleteBefore([record.id])
+            }
             await props.deleteApi([record.id])
         }
         message.success('删除成功')
@@ -179,6 +195,9 @@ function BaseTable(props: BaseTableProps<never>) {
     // 批量删除
     async function handlerDelBatchConfirm() {
         if (props.deleteApi !== undefined && selectedRowKeys.length > 0) {
+            if (props.onDeleteBefore) {
+                props.onDeleteBefore(selectedRowKeys as Array<string>)
+            }
             await props.deleteApi(selectedRowKeys as Array<string>)
             message.success('批量删除成功')
             setSelectedRowKeys([])
@@ -199,8 +218,7 @@ function BaseTable(props: BaseTableProps<never>) {
             },
             width: 80,
         },
-         
-        ...props.columns,
+        ...props.columns ?? [],
         {
             title: '操作',
             key: 'action',
@@ -289,7 +307,7 @@ function BaseTable(props: BaseTableProps<never>) {
         if (record) {
             if (props.detailApi !== undefined) {
                const {data} = await props.detailApi(record.id)
-               setActiveRecord(data)
+               setActiveRecord(data as BaseEntity)
             } else {
                setActiveRecord(record)
             }
@@ -301,12 +319,26 @@ function BaseTable(props: BaseTableProps<never>) {
         drawerRef.current?.close()
     };
 
+    // 刷新
+    const onRefresh = () => {
+        setTableParams({
+            ...tableParams,
+            pagination: {
+                ...tableParams.pagination,
+                current: 1,
+            },
+        });
+        onClose()
+    };
+
     const drawerRef = useRef<BaseDrawerRef>(null)
 
     // 渲染内容
-    const renderContent = useMemo<ReactElement>(() => {
-        return (type === '新增' ? props.slots?.update ?? <FormUpdate record={activeRecord} onClose={onClose}/> : props.slots?.detail ?? <FormDetail record={activeRecord} config={props.detail}/>) as ReactElement
-    }, [activeRecord, props.slots?.detail, props.slots?.update, type])
+    const RenderContent = useMemo<ReactElement>(() => {
+        return (type === '新增' ?
+            props.slots?.update ?? <FormUpdate record={activeRecord} onClose={onRefresh} formConfig={props.form} formItems={props.formItems}/> :
+            props.slots?.detail ?? <FormDetail record={activeRecord} config={props.detail}/>) as ReactElement
+    }, [activeRecord, props.detail, props.slots?.detail, props.slots?.update, type])
 
     return (
             <>
@@ -411,7 +443,7 @@ function BaseTable(props: BaseTableProps<never>) {
 
                 {/* 更新 */}
                 <BaseDrawer ref={drawerRef} title={props.name + type} onClose={onClose} record={activeRecord}>
-                    {renderContent}
+                    {RenderContent}
                 </BaseDrawer>
             </>
     )
