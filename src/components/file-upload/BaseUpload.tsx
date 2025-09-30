@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from "react";
 import  {App, Button, Upload, type UploadFile, type UploadProps} from "antd";
 import {UploadOutlined} from "@ant-design/icons";
-import {get} from "@/utils/http-request.ts";
+import {get, post} from "@/utils/http-request.ts";
 import type {BaseResult} from "@/entity/common.ts";
+import dayjs from "dayjs";
 
 /**
  * @name: 名称
@@ -34,13 +35,17 @@ interface OSSDataType {
 
 
 const BaseUpload: React.FC<BaseUploadProps> = function (props) {
+
+    const time = dayjs().format('YYYY/MM/DD/')
+
+
     const { message } = App.useApp();
 
     const [OSSData, setOSSData] = useState<OSSDataType>();
 
     const init = async () => {
         try {
-            const {data} = await get<BaseResult<OSSDataType>>('/aliyun/get_post_signature_for_oss_upload');
+            const {data} = await post<BaseResult<OSSDataType>>('/aliyun/get_post_signature_for_oss_upload');
             setOSSData(data);
         } catch (err) {
             if (err instanceof Error) {
@@ -68,30 +73,47 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
         props.onChange?.(files);
     };
 
-    const getExtraData: UploadProps['data'] = (file) => ({
-        success_action_status: 200,
-        policy: OSSData?.policy,
-        "x-oss-signature": OSSData?.signature,
-        "x-oss-signature-version": "OSS4-HMAC-SHA256",
-        "x-oss-credential": OSSData?.x_oss_credential,
-        "x-oss-date": OSSData?.x_oss_date,
-        key: OSSData?.dir + file.name,
-        "x-oss-security-token": OSSData?.security_token
-    });
+    const getExtraData: UploadProps['data'] = (file) =>  {
+        return {
+            success_action_status: 200,
+            policy: OSSData?.policy,
+            "x-oss-signature": OSSData?.signature,
+            "x-oss-signature-version": "OSS4-HMAC-SHA256",
+            "x-oss-credential": OSSData?.x_oss_credential,
+            "x-oss-date": OSSData?.x_oss_date,
+            key: file.url!,
+            "x-oss-security-token": OSSData?.security_token
+        };
+    }
 
     const beforeUpload: UploadProps['beforeUpload'] = async (file) => {
         await init();
 
         const suffix = file.name.slice(file.name.lastIndexOf('.'));
-        const filename = Date.now() + suffix;
+        // bucket和文件夹都交给前端来
+        const filename = time + Date.now() + suffix;
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         file.url = OSSData.dir + filename;
+        console.log(file.url)
 
         return file;
     };
 
     let uploadProps: object = props
+
+
+    async function handlerPreview(file: UploadFile) {
+        console.log(file)
+        const { data } = await post<BaseResult<string>>(`/aliyun/get_sts_credential`, {
+                endpoint: 'https://oss.www.xndb.net.cn',
+                region: 'cn-hangzhou',
+                bucketName: 'xndb-admin',
+                objectName: file.url?.replace('https://oss.www.xndb.net.cn/', ''),
+                expireTime: (dayjs().add(1, 'hour').unix() * 1000).toString()
+        })
+        window.open(data)
+    }
 
     uploadProps = {
         ...uploadProps,
@@ -107,7 +129,7 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
     };
 
     return (
-        <Upload {...uploadProps}>
+        <Upload {...uploadProps} onPreview={handlerPreview}>
             <Button icon={<UploadOutlined />}>点击上传</Button>
         </Upload>
     );
