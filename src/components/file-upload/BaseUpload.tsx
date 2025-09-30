@@ -12,11 +12,13 @@ import type {BaseResult} from "@/entity/common.ts";
  */
 
 
+// 组件支持的属性
 export interface BaseUploadProps extends UploadProps{
     value?: UploadFile[];
     onChange?: (fileList: UploadFile[]) => void;
 }
 
+// 阿里云上传数据
 interface OSSDataType {
     policy: string
     dir: string;
@@ -52,6 +54,11 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
     }, []);
 
     const handleChange: UploadProps['onChange'] = ({ fileList }) => {
+        fileList.forEach((file) => {
+            if (file.status === 'done' && (file.url?.indexOf('https://') === -1 || file.url?.indexOf('http://') === -1)) {
+                file.url = `https://oss.www.xndb.net.cn/${file.url}`;
+            }
+        })
         console.log('Aliyun OSS:', fileList);
         props.onChange?.([...fileList]);
     };
@@ -73,15 +80,7 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
     });
 
     const beforeUpload: UploadProps['beforeUpload'] = async (file) => {
-        if (!OSSData) {
-            return false;
-        }
-
-        const expire = Number(OSSData.expire) * 1000;
-
-        if (expire < Date.now()) {
-            await init();
-        }
+        await init();
 
         const suffix = file.name.slice(file.name.lastIndexOf('.'));
         const filename = Date.now() + suffix;
