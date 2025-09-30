@@ -1,7 +1,7 @@
 import type {BaseFormItemProps} from "@/components/form/BaseFormItem.tsx";
 import type {LoginLog} from "@/entity/system/login-log.ts";
 
-const searchs : Array<BaseFormItemProps<LoginLog>> = [
+const fields : Array<BaseFormItemProps<LoginLog>> = [
     {
         name: "username",
         label: "用户名",
@@ -36,4 +36,4 @@ const searchs : Array<BaseFormItemProps<LoginLog>> = [
     }
 ]
 
-export default searchs;
+export default fields;

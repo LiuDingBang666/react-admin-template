@@ -8,10 +8,12 @@ import BaseTable from "@/components/table/BaseTable.tsx";
 import {addLoginLog, deleteLoginLog, getLoginLogById, pageLoginLog, updateLoginLog} from "@/api/system/login-log.ts";
 import columns from "@/pages/system/login-log/columns.tsx";
 import searchs from "@/pages/system/login-log/search.tsx";
+import fields from "@/pages/system/login-log/fields.tsx";
+import details from "@/pages/system/login-log/detail.tsx";
 
 
 export default function SysLoginLog() {
    return (
-      <BaseTable searchs={searchs} columns={columns} name="登录日志" addApi={addLoginLog} deleteApi={deleteLoginLog} api={pageLoginLog} detailApi={getLoginLogById} updateApi={updateLoginLog}></BaseTable>
+      <BaseTable searchs={searchs} detail={details} formItems={fields} columns={columns} name="登录日志" addApi={addLoginLog} deleteApi={deleteLoginLog} api={pageLoginLog} detailApi={getLoginLogById} updateApi={updateLoginLog}></BaseTable>
    )
 }

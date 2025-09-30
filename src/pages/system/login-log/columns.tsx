@@ -51,18 +51,6 @@ const columns:TableProps<LoginLog>['columns'] = [
         key: "browser",
         width: 120,
     },
-    // {
-    //     title: "登录地点",
-    //     dataIndex: "loginLocation",
-    //     key: "loginLocation",
-    //     width: 120
-    // },
-    // {
-    //     title: "提示信息",
-    //     dataIndex: "msg",
-    //     key: "msg",
-    //     width: 120,
-    // },
 ]
 
 export default columns;

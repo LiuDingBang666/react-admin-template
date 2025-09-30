@@ -83,9 +83,6 @@ interface BaseTableProps<T extends BaseEntity> {
     detailApi?: (id: string) => Promise<T>
     // 详情配置
     detail?: FormDetailConfigProps<BaseEntity>[] | null | undefined
-    // 新增/修改配置
-    updateFields?: Array<BaseFormItemProps<T>>
-
 
     // 事件
     onSearchBefore?: (params: RequestParams) => void
@@ -313,6 +310,8 @@ function BaseTable(props: BaseTableProps<BaseEntity>) {
             } else {
                setActiveRecord(record)
             }
+        } else {
+            setActiveRecord(null)
         }
     };
 
@@ -337,10 +336,10 @@ function BaseTable(props: BaseTableProps<BaseEntity>) {
 
     // 渲染内容
     const RenderContent = useMemo<ReactElement>(() => {
-        return (type === '新增' ?
+        return (type !== '详情' ?
             props.slots?.update ?? <FormUpdate record={activeRecord} onClose={onRefresh} formConfig={props.form} formItems={props.formItems}/> :
             props.slots?.detail ?? <FormDetail record={activeRecord} config={props.detail}/>) as ReactElement
-    }, [activeRecord, props.detail, props.slots?.detail, props.slots?.update, type])
+    }, [activeRecord, onRefresh, props.detail, props.form, props.formItems, props.slots?.detail, props.slots?.update, type])
 
     return (
             <>

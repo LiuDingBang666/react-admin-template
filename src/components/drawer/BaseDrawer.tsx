@@ -4,8 +4,8 @@
  * @author: mayn
  * @date: 2025/9/28 11:23
  */
-import  {forwardRef, type JSX, useImperativeHandle, useState} from "react";
-import {Col, Drawer, Row, Space} from "antd";
+import React, {forwardRef, type JSX, useImperativeHandle, useState} from "react";
+import {Col, Divider, Drawer, Row, Space} from "antd";
 import type {BaseEntity} from "@/entity/common.ts";
 import {ClockCircleOutlined, UserAddOutlined, UsergroupAddOutlined} from "@ant-design/icons";
 
@@ -42,11 +42,11 @@ const BaseDrawer = forwardRef<BaseDrawerRef, BaseDrawerProps>( (props, refs) => 
     }))
 
     return (
-        <Drawer width={640} open={open} placement="right" onClose={onClose} title={title}>
+        <Drawer destroyOnHidden={true} width={640} open={open} placement="right" onClose={onClose} title={title}>
             {
                 props.record && (
                    <>
-                   <Space direction="vertical" size="middle" style={{ display: 'flex', marginBottom: 15 }}>
+                   <Space direction="vertical" size="middle" style={{ display: 'flex', marginBottom: 15, fontWeight: "bold" }}>
                        <Row justify={"center"}>
                            <Col span={12}>
                                <div><UserAddOutlined /> 创建人: {props.record.createdBy ?? '-'}</div>
@@ -64,6 +64,7 @@ const BaseDrawer = forwardRef<BaseDrawerRef, BaseDrawerProps>( (props, refs) => 
                            </Col>
                        </Row>
                    </Space>
+                       <Divider size={"small"} style={{margin: 10}}/>
                    </>
                 )
             }

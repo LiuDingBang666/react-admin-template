@@ -39,13 +39,13 @@ const BaseFormItem: React.FC<BaseFormItemProps<BaseEntity>> = function ({name, l
             >
                 {type === "Input" && <Input  placeholder={placeholder ?? "请输入" +  label}  {...(props as InputProps)} />}
                 {type === "InputNumber" && <InputNumber placeholder={placeholder  ?? "请输入" +  label}   {...(props as InputNumberProps)} />}
-                {type === "Select" && <Select allowClear={true} showSearch={true} placeholder={placeholder  ?? "请选择" +  label}   {...(props as SelectProps)} />}
+                {type === "Select" && <Select allowClear={true} showSearch={true} optionFilterProp="label" placeholder={placeholder  ?? "请选择" +  label}   {...(props as SelectProps)} />}
                 {type === "Switch" && <Switch {...(props as SwitchProps)} />}
                 {type === "Rate" && <Rate {...(props as RateProps)} />}
                 {type === "TimePicker" && <TimePicker allowClear  placeholder={placeholder ?? "请选择" +  label}   {...(props as TimePickerProps)} />}
                 {type === "Upload" && <Upload  {...(props as UploadProps)} />}
                 {type === "AutoComplete" && <AutoComplete allowClear={ true}  placeholder={placeholder ?? "请输入" +  label}   {...(props as AutoCompleteProps)} />}
-                {type === "Cascader" && <Cascader  allowClear={ true}  placeholder={placeholder ?? "请选择" +  label}   {...(props as CascaderProps)} />}
+                {type === "Cascader" && <Cascader  allowClear={ true}  placeholder={placeholder ?? "请选择" +  label}   {...(props as any)} />}
                 {type === "Checkbox" && <Checkbox   {...(props as CheckboxProps)} />}
                 {type === "ColorPicker" && <ColorPicker   {...(props as ColorPickerProps)} />}
                 {type === "DatePicker" && <DatePicker  placeholder={placeholder ?? "请选择" +  label}   {...(props as DatePickerProps)} />}

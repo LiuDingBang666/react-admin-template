@@ -29,20 +29,20 @@ const FormDetail: React.FC<FormDetailProps<BaseEntity>> = function FormDetail({ 
         <>
             {
                 record && config && config.map((group, groupIdx, groups) => {
-                    <>
+                    return (<>
                         {group.title &&   <p className="site-description-item-profile-p">{group.title}</p>}
                         <Row>
                             {
                                 group.items.map((item) => {
-                                    return   <Col span={12} key={item.title}>
-                                        <span className="site-description-item-profile-p-label">{item.title}</span>
-                                        {  (item.render ? item.render(record) : record[item.column]) as ReactElement}
+                                    return   <Col span={12} key={item.title}  style={{marginBottom: 10}}>
+                                        <span className="site-description-item-profile-p-label" style={{marginRight: 8, fontWeight: "bold"}}>{item.title}:</span>
+                                        {  (item.render ? item.render(record) : record[item.column] ?? '-') as ReactElement}
                                     </Col>
-                                    })
+                                })
                             }
                         </Row>
                         { groupIdx < groups.length - 1 && <Divider />}
-                    </>
+                    </>)
                 })
             }
         </>
