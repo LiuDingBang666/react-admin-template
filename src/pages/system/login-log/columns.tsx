@@ -48,7 +48,7 @@ const columns:TableProps<LoginLog>['columns'] = [
     {
         title: "操作系统",
         dataIndex: "os",
-        key: "browser",
+        key: "os",
         width: 120,
     },
 ]

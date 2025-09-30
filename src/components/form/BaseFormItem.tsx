@@ -1,9 +1,12 @@
 import {AutoComplete, Cascader, Checkbox,
     ColorPicker, DatePicker, Form, Input, InputNumber, Mentions, Radio, Select, Slider, Switch, TimePicker,Rate,
-    Transfer, Upload} from "antd";
+    Transfer, Upload, Button
+} from "antd";
 import type {BaseEntity} from "@/entity/common.ts";
 import React from "react";
 import type { AutoCompleteProps,CascaderProps,CheckboxProps,ColorPickerProps,DatePickerProps,FormProps,FormItemProps,InputProps,InputNumberProps,MentionsProps,RadioProps,RateProps,SelectProps,SliderSingleProps,SwitchProps,TimePickerProps,TransferProps,UploadProps } from 'antd';
+import {UploadOutlined} from "@ant-design/icons";
+import BaseUpload, {type BaseUploadProps} from "@/components/file-upload/BaseUpload.tsx";
 
 /**
  * @name: 名称
@@ -26,7 +29,7 @@ export interface BaseFormItemProps<T extends BaseEntity> {
 
     form?: FormItemProps
     // 输入控件配置
-    props?:  AutoCompleteProps | CascaderProps | CheckboxProps | ColorPickerProps | DatePickerProps | FormProps | InputProps | InputNumberProps | MentionsProps | RadioProps | RateProps | SelectProps | SliderSingleProps | SwitchProps | TimePickerProps | TransferProps | UploadProps
+    props?:  AutoCompleteProps | CascaderProps | CheckboxProps | ColorPickerProps | DatePickerProps | FormProps | InputProps | InputNumberProps | MentionsProps | RadioProps | RateProps | SelectProps | SliderSingleProps | SwitchProps | TimePickerProps | TransferProps | BaseUploadProps
 }
 const BaseFormItem: React.FC<BaseFormItemProps<BaseEntity>> = function ({name, label, type,  form, rules, props, placeholder}) {
     return (
@@ -43,7 +46,7 @@ const BaseFormItem: React.FC<BaseFormItemProps<BaseEntity>> = function ({name, l
                 {type === "Switch" && <Switch {...(props as SwitchProps)} />}
                 {type === "Rate" && <Rate {...(props as RateProps)} />}
                 {type === "TimePicker" && <TimePicker allowClear  placeholder={placeholder ?? "请选择" +  label}   {...(props as TimePickerProps)} />}
-                {type === "Upload" && <Upload  {...(props as UploadProps)} />}
+                {type === "Upload" && <BaseUpload {...props as BaseUploadProps} />}
                 {type === "AutoComplete" && <AutoComplete allowClear={ true}  placeholder={placeholder ?? "请输入" +  label}   {...(props as AutoCompleteProps)} />}
                 {type === "Cascader" && <Cascader  allowClear={ true}  placeholder={placeholder ?? "请选择" +  label}   {...(props as any)} />}
                 {type === "Checkbox" && <Checkbox   {...(props as CheckboxProps)} />}

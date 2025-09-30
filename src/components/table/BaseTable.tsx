@@ -68,7 +68,7 @@ interface BaseTableProps<T extends BaseEntity> {
     // 新增表单配置
     formItems?: Array<BaseFormItemProps<T>>
     // 分页api
-    api: (params: RequestParams) => Promise<BaseResult<BasePage<T>>>
+    api: (params: RequestParams) => Promise<BasePage<T>>
     // 导入api
     importApi?: (params: RequestParams) => Promise<boolean>
     // 导出api
@@ -82,7 +82,7 @@ interface BaseTableProps<T extends BaseEntity> {
     // 详情api
     detailApi?: (id: string) => Promise<T>
     // 详情配置
-    detail?: FormDetailConfigProps<BaseEntity>[] | null | undefined
+    detail?: FormDetailConfigProps<T>[] | null | undefined
 
     // 事件
     onSearchBefore?: (params: RequestParams) => void
@@ -110,7 +110,7 @@ interface TableParams {
 }
 
 
-function BaseTable(props: BaseTableProps<BaseEntity>) {
+function BaseTable(props: BaseTableProps<any>) {
 
     // page
     const [data, setData] = useState<Array<BaseEntity>>([]);
@@ -408,6 +408,7 @@ function BaseTable(props: BaseTableProps<BaseEntity>) {
                         style={{width: '100%', height: '100%'}}
                         bordered={true}
                         columns={columns}
+                        rowKey='id'
                         dataSource={data}
                         loading={loading}
                         rowSelection={rowSelection}

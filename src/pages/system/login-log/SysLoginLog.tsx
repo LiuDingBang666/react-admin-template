@@ -14,6 +14,10 @@ import details from "@/pages/system/login-log/detail.tsx";
 
 export default function SysLoginLog() {
    return (
-      <BaseTable searchs={searchs} detail={details} formItems={fields} columns={columns} name="登录日志" addApi={addLoginLog} deleteApi={deleteLoginLog} api={pageLoginLog} detailApi={getLoginLogById} updateApi={updateLoginLog}></BaseTable>
+      <BaseTable
+                 name="登录日志"
+                 searchs={searchs} detail={details} formItems={fields} columns={columns}
+                 api={pageLoginLog} addApi={addLoginLog} deleteApi={deleteLoginLog} detailApi={getLoginLogById} updateApi={updateLoginLog}
+      />
    )
 }
