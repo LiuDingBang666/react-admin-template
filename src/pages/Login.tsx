@@ -51,7 +51,7 @@ export default function Login(): ReactElement {
                form={form}
                name="basic"
                layout={isMobile ? 'vertical' : 'horizontal'}
-               labelCol={isMobile ? undefined : { span: 4 }}
+               labelCol={isMobile ? undefined : { span: 6 }}
                wrapperCol={isMobile ? undefined : { span: 19 }}
                initialValues={{ remember: true } as Partial<LoginFormValues>}
                onFinish={onFinish}

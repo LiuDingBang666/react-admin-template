@@ -68,7 +68,7 @@ interface BaseTableProps<T extends BaseEntity> {
     // 新增表单配置
     formItems?: Array<BaseFormItemProps<T>>
     // 分页api
-    api: (params: RequestParams) => Promise<BasePage<T>>
+    api: (params: RequestParams) => Promise<BaseResult<BasePage<T>>>
     // 导入api
     importApi?: (params: RequestParams) => Promise<boolean>
     // 导出api
@@ -341,126 +341,221 @@ function BaseTable(props: BaseTableProps<any>) {
             props.slots?.detail ?? <FormDetail record={activeRecord} config={props.detail}/>) as ReactElement
     }, [activeRecord, onRefresh, props.detail, props.form, props.formItems, props.slots?.detail, props.slots?.update, type])
 
+
+
+    // 表格高度自动计算（当没有指定表格高度时，会自动计算）
+    const [autoComputerMaxHeight, setAutoComputerMaxHeight] = useState<string>('')
+    const observers: Array<ResizeObserver> = []
+
+    /**
+     * 观察dom自动计算表格高度
+     * 1. 只有当表格高度没有指定时，会自动计算
+     * @param box dom
+     * @param isObserverParent 是否观察父容器高度改变
+     * @param selectParent 父容器（默认是box的父容器）
+     */
+    function observerDomAutoFitTableHeight(box: Element | null, isObserverParent = true, selectParent?: HTMLElement) {
+        let resizeObserver = undefined
+        if (box) {
+            // 获取到父节点
+            const parent = selectParent ?? box.parentElement as HTMLElement
+            // 观察父容器的高度改变
+            resizeObserver = new ResizeObserver(() => {
+                let totalHeight = parent.clientHeight
+                const style = getComputedStyle(parent)
+                const paddingTop = Math.ceil(parseFloat(style.paddingTop))
+                const paddingBottom = Math.ceil(parseFloat(style.paddingBottom))
+                const marginTop = Math.ceil(parseFloat(style.marginTop))
+                const marginBottom = Math.ceil(parseFloat(style.marginBottom))
+                // fixed 计算高度不对的问题
+                totalHeight -= paddingTop + paddingBottom + marginTop + marginBottom
+                let otherHeight = 0
+                // 去掉父容器的margin
+                // 先找到表格
+                const table = document.querySelector('.table-box')
+                if (table) {
+                    function getAllChildNodes(node: any) {
+                        if (node != table) {
+                            if (node.nodeType === Node.ELEMENT_NODE) {
+                                if (!nodeIsIncludeClass(node, 'table-box')) {
+                                    otherHeight += node.clientHeight
+                                } else {
+                                    node.childNodes.forEach((item: any) => {
+                                        getAllChildNodes(item)
+                                    })
+                                }
+                            }
+                        }
+                    }
+
+                    // 判断某个node是否有包函className的节点
+                    function nodeIsIncludeClass(node: any, className: string) {
+                        if (node.nodeType === Node.ELEMENT_NODE && node.className && node.className.includes && node.className.includes(className)) {
+                            return true
+                        } else {
+                            let flag = false
+                            node.childNodes.forEach((item: any) => {
+                                const result = nodeIsIncludeClass(item, className)
+                                if (result) {
+                                    flag = true
+                                }
+                            })
+                            return flag
+                        }
+                    }
+                    getAllChildNodes(parent)
+                    // 表格高度 = 总高度 - [搜索栏高度 - 分页栏高度]
+                    setAutoComputerMaxHeight(`${totalHeight - otherHeight}px`)
+                } else {
+                    console.warn('表格未找到,自动计算高度失败')
+                }
+            })
+            resizeObserver.observe(isObserverParent ? parent as Element : box)
+            observers.push(resizeObserver)
+        }
+    }
+
+    useEffect(() => {
+        const search = document.querySelector('.search');
+        if (search) {
+            // 对搜索框进行观察,搜索框高度改变，表格高度自动吃父元素的剩余高度
+            observerDomAutoFitTableHeight(search, false)
+        } else {
+            // 对表格进行观察-适配单表格场景,表格高度自动吃父元素的剩余高度
+            observerDomAutoFitTableHeight(document.querySelector('.table-box'))
+        }
+        // 对窗口进行观察,窗口大小改变，表格高度自动吃父元素的剩余高度
+        if (document.querySelector('.table-box')) {
+            observerDomAutoFitTableHeight(document.body, false, document.querySelector('.table-box')!.parentElement as HTMLElement)
+        }
+        return () => {
+            observers.forEach(item => {
+                item.disconnect()
+            })
+        }
+    }, [])
+
     return (
             <>
-                {/*search*/}
-                <Row className="search">
-                    <Form
-                        name="basic"
-                        labelCol={{ span: 8 }}
-                        wrapperCol={{ span: 16 }}
-                        initialValues={{ remember: true }}
-                        onFinish={onSearch}
-                        autoComplete="off"
-                        layout={"inline"}
-                    >
-                        {props.searchs.map((item, index) => (
-                            <BaseFormItem {...item} key={index}/>
-                        ))}
+                <div className="table-box">
+                    {/*search*/}
+                    <Row className="search">
+                        <Form
+                            name="basic"
+                            labelCol={{ span: 8 }}
+                            wrapperCol={{ span: 16 }}
+                            initialValues={{ remember: true }}
+                            onFinish={onSearch}
+                            autoComplete="off"
+                            layout={"inline"}
+                        >
+                            {props.searchs.map((item, index) => (
+                                <BaseFormItem {...item} key={index}/>
+                            ))}
 
-                        <Form.Item label={null}>
-                            <Button type="primary" htmlType="submit">
-                                查询
-                            </Button>
-                        </Form.Item>
-                        {
-                            props.addApi &&
                             <Form.Item label={null}>
-                                {PermissionWrapComponent({
-                                    permission: props.permissionPrefix + '新增',
-                                    children:   <Button type="primary"  onClick={() => showDrawer('新增')}>
-                                        新增
-                                    </Button>
-                                })}
+                                <Button type="primary" htmlType="submit">
+                                    查询
+                                </Button>
                             </Form.Item>
-                        }
-                        { props.importApi &&
-                           PermissionWrapComponent( {
-                               permission: props.permissionPrefix + '导入',
-                               children:   <Form.Item label={null}>
-                                   <Button type="primary" danger={true}>
-                                       导入
-                                   </Button>
-                               </Form.Item>
-                           })
-                        }
-
-                        {
-                            props.exportApi &&  PermissionWrapComponent( {
-                                permission: props.permissionPrefix + '导出',
-                                children:  <Form.Item label={null}>
-                                    <Button color={"green"} type={"primary"} >
-                                        导出
-                                    </Button>
+                            {
+                                props.addApi &&
+                                <Form.Item label={null}>
+                                    {PermissionWrapComponent({
+                                        permission: props.permissionPrefix + '新增',
+                                        children:   <Button type="primary"  onClick={() => showDrawer('新增')}>
+                                            新增
+                                        </Button>
+                                    })}
                                 </Form.Item>
-                            })
-                        }
-                        {
-                            props.searchOperator
-                        }
-                    </Form>
-                </Row>
+                            }
+                            { props.importApi &&
+                                PermissionWrapComponent( {
+                                    permission: props.permissionPrefix + '导入',
+                                    children:   <Form.Item label={null}>
+                                        <Button type="primary" danger={true}>
+                                            导入
+                                        </Button>
+                                    </Form.Item>
+                                })
+                            }
 
-                {/*table*/}
+                            {
+                                props.exportApi &&  PermissionWrapComponent( {
+                                    permission: props.permissionPrefix + '导出',
+                                    children:  <Form.Item label={null}>
+                                        <Button color={"green"} type={"primary"} >
+                                            导出
+                                        </Button>
+                                    </Form.Item>
+                                })
+                            }
+                            {
+                                props.searchOperator
+                            }
+                        </Form>
+                    </Row>
 
-                <Row className="table">
-                    <Table
-                        style={{width: '100%', height: '100%'}}
-                        bordered={true}
-                        columns={columns}
-                        rowKey='id'
-                        dataSource={data}
-                        loading={loading}
-                        rowSelection={rowSelection}
-                        scroll={{
-                            y: "64vh",
-                        }}
-                        pagination={false}
-                    />
-                </Row>
-
-                {/*额外操作*/}
-                <Row className="pagination-operator">
-                    <Col span={12}>
-                        {
-                            props.deleteApi &&
-                            PermissionWrapComponent( {
-                                permission: props.permissionPrefix + '删除',
-                                children:
-                                    <Popconfirm
-                                        title="删除确认"
-                                        description="您确认要删除选中的记录嘛?"
-                                        onConfirm={() => handlerDelBatchConfirm()}
-                                        okText="确认"
-                                        cancelText="取消"
-                                    >
-                                    <Button type="primary" danger={true} disabled={selectedRowKeys.length == 0} >批量删除</Button>
-                                    </Popconfirm>
-                            })
-                        }
-                        {
-                            props.batchOperator && props.batchOperator.map((item, index) => (
-                                <Button key={index} type="primary" {...item.style} disabled={selectedRowKeys.length == 0} onClick={() => item.callback?.({selectedRowKeys, clear: () => setSelectedRowKeys([])})}>{item.name}</Button>
-                            ))
-                        }
-                    </Col>
-                    <Col span={12}>
-                        <Pagination
-                            showQuickJumper
-                            showSizeChanger
-                            showTotal={(total) => `共 ${total} 条数据`}
-                            align={"end"}
-                            defaultCurrent={1}
-                            total={tableParams.pagination?.total}
-                            onChange={onPaginationChange}
+                    {/*table*/}
+                    <Row className="table">
+                        <Table
+                            style={{width: '100%', height: '100%'}}
+                            bordered={true}
+                            columns={columns}
+                            rowKey='id'
+                            dataSource={data}
+                            loading={loading}
+                            rowSelection={rowSelection}
+                            scroll={{
+                                y: autoComputerMaxHeight,
+                            }}
+                            pagination={false}
                         />
-                    </Col>
-                </Row>
+                    </Row>
 
-                {/* 更新 */}
-                <BaseDrawer ref={drawerRef} title={props.name + type} onClose={onClose} record={activeRecord}>
-                    {RenderContent}
-                </BaseDrawer>
+                    {/*额外操作*/}
+                    <Row className="pagination-operator">
+                        <Col span={12}>
+                            {
+                                props.deleteApi &&
+                                PermissionWrapComponent( {
+                                    permission: props.permissionPrefix + '删除',
+                                    children:
+                                        <Popconfirm
+                                            title="删除确认"
+                                            description="您确认要删除选中的记录嘛?"
+                                            onConfirm={() => handlerDelBatchConfirm()}
+                                            okText="确认"
+                                            cancelText="取消"
+                                        >
+                                            <Button type="primary" danger={true} disabled={selectedRowKeys.length == 0} >批量删除</Button>
+                                        </Popconfirm>
+                                })
+                            }
+                            {
+                                props.batchOperator && props.batchOperator.map((item, index) => (
+                                    <Button key={index} type="primary" {...item.style} disabled={selectedRowKeys.length == 0} onClick={() => item.callback?.({selectedRowKeys, clear: () => setSelectedRowKeys([])})}>{item.name}</Button>
+                                ))
+                            }
+                        </Col>
+                        <Col span={12}>
+                            <Pagination
+                                showQuickJumper
+                                showSizeChanger
+                                showTotal={(total) => `共 ${total} 条数据`}
+                                align={"end"}
+                                defaultCurrent={1}
+                                total={tableParams.pagination?.total}
+                                onChange={onPaginationChange}
+                            />
+                        </Col>
+                    </Row>
+
+                    {/* 更新 */}
+                    <BaseDrawer ref={drawerRef} title={props.name + type} onClose={onClose} record={activeRecord}>
+                        {RenderContent}
+                    </BaseDrawer>
+                </div>
             </>
     )
 }

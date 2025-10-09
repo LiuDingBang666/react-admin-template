@@ -48,7 +48,7 @@ instance.interceptors.request.use(
       config.headers.Authorization = config.headers.Authorization || `Bearer ${token}`;
     }
 
-    config.headers['Authorization-Token'] = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1OTMwMTc1M30.XAGV-W9_KnJY6PlfWOk3Hap6PDXgnAAUp_ZNXTIWwCKOZqPH0r8GbVv8WqdWq-zBReyeUFJp0W7udG6CLYxvOQ'
+    config.headers['Authorization-Token'] = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1OTU0NTAwMH0.Wv69KKuUCYoHAtVP6qP9rAdoZOrSv5l70kZ8VillZNmJqV0Ty-LOnn6S87v-fjxVdHw-Pe0kqmEhMmm1AVEEqg'
     return config;
   },
   (error) => Promise.reject(error),

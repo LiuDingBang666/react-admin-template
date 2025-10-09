@@ -42,6 +42,7 @@ const FormUpdate: React.FC<UpdateProps<BaseEntity>> = function Update({record, o
 
     const onFinish = async (values: BaseEntity) => {
         const afterValues = {...formData, ...values}
+        console.log(afterValues)
         if (afterValues.id) {
           await update!(afterValues)
           message.success('更新成功')

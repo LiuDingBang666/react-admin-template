@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from "react";
 import  {App, Button, Upload, type UploadFile, type UploadProps} from "antd";
 import {UploadOutlined} from "@ant-design/icons";
-import {get, post} from "@/utils/http-request.ts";
-import type {BaseResult} from "@/entity/common.ts";
+import { post} from "@/utils/http-request.ts";
+import type {BaseResult, RequestParams} from "@/entity/common.ts";
 import dayjs from "dayjs";
 
 /**
@@ -15,8 +15,21 @@ import dayjs from "dayjs";
 
 // 组件支持的属性
 export interface BaseUploadProps extends UploadProps{
-    value?: UploadFile[];
+    // 在文件改变后的回调
     onChange?: (fileList: UploadFile[]) => void;
+
+    // oss上传专门配置
+    // 阿里云oss配置
+    bucket?: string
+    // 存储区域
+    region?: string
+    // 存储空间
+    host?: string
+    // 文件上传目录
+    uploadDir?: string
+    // 阿里云上传地址
+    endpoint?: string
+
 }
 
 // 阿里云上传数据
@@ -45,7 +58,13 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
 
     const init = async () => {
         try {
-            const {data} = await post<BaseResult<OSSDataType>>('/aliyun/get_post_signature_for_oss_upload');
+            const uploadData: RequestParams = {
+                bucket: props.bucket,
+                region: props.region,
+                host: props.host,
+                uploadDir: props.uploadDir ?? time
+            }
+            const {data} = await post<BaseResult<OSSDataType>>('/aliyun/get_post_signature_for_oss_upload', uploadData);
             setOSSData(data);
         } catch (err) {
             if (err instanceof Error) {
@@ -56,20 +75,16 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
 
     useEffect(() => {
         init();
+        // observer
     }, []);
 
     const handleChange: UploadProps['onChange'] = ({ fileList }) => {
-        fileList.forEach((file) => {
-            if (file.status === 'done' && (file.url?.indexOf('https://') === -1 || file.url?.indexOf('http://') === -1)) {
-                file.url = `https://oss.www.xndb.net.cn/${file.url}`;
-            }
-        })
         console.log('Aliyun OSS:', fileList);
         props.onChange?.([...fileList]);
     };
 
     const onRemove = (file: UploadFile) => {
-        const files = (props.value || []).filter((v) => v.url !== file.url);
+        const files = (props.fileList || []).filter((v) => v.url !== file.url);
         props.onChange?.(files);
     };
 
@@ -91,7 +106,7 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
 
         const suffix = file.name.slice(file.name.lastIndexOf('.'));
         // bucket和文件夹都交给前端来
-        const filename = time + Date.now() + suffix;
+        const filename = Date.now() + suffix;
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         file.url = OSSData.dir + filename;
@@ -106,11 +121,10 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
     async function handlerPreview(file: UploadFile) {
         console.log(file)
         const { data } = await post<BaseResult<string>>(`/aliyun/get_sts_credential`, {
-                endpoint: 'https://oss.www.xndb.net.cn',
-                region: 'cn-hangzhou',
-                bucketName: 'xndb-admin',
-                objectName: file.url?.replace('https://oss.www.xndb.net.cn/', ''),
-                expireTime: (dayjs().add(1, 'hour').unix() * 1000).toString()
+                endpoint: props.endpoint,
+                region: props.region,
+                bucketName: props.bucket,
+                objectName: file.url
         })
         window.open(data)
     }
@@ -119,7 +133,6 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
         ...uploadProps,
         ...{
             name: 'file',
-                fileList: props.value,
             action: OSSData?.host,
             onRemove,
             data: getExtraData,

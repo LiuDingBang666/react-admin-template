@@ -31,7 +31,7 @@ export interface BaseFormItemProps<T extends BaseEntity> {
     // 输入控件配置
     props?:  AutoCompleteProps | CascaderProps | CheckboxProps | ColorPickerProps | DatePickerProps | FormProps | InputProps | InputNumberProps | MentionsProps | RadioProps | RateProps | SelectProps | SliderSingleProps | SwitchProps | TimePickerProps | TransferProps | BaseUploadProps
 }
-const BaseFormItem: React.FC<BaseFormItemProps<BaseEntity>> = function ({name, label, type,  form, rules, props, placeholder}) {
+const BaseFormItem: React.FC<BaseFormItemProps<T>> = function ({name, label, type,  form, rules, props, placeholder}) {
     return (
         <>
             <Form.Item

@@ -1,6 +1,5 @@
 import type {BaseFormItemProps} from "@/components/form/BaseFormItem.tsx";
 import type {LoginLog} from "@/entity/system/login-log.ts";
-import {message} from "antd";
 
 const fields : Array<BaseFormItemProps<LoginLog>> = [
     {
@@ -39,10 +38,7 @@ const fields : Array<BaseFormItemProps<LoginLog>> = [
         name: "file",
         label: "登录日志",
         type: "Upload",
-        placeholder: "请上传登录日志",
-        props: {
-
-        }
+        placeholder: "请上传登录日志"
     }
 ]
 
