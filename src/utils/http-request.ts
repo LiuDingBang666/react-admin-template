@@ -41,14 +41,13 @@ const instance: AxiosInstance = axios.create({
  */
 instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-
     // todo 加 token
     const token = getToken();
     if (token && config.headers) {
       config.headers.Authorization = config.headers.Authorization || `Bearer ${token}`;
     }
 
-    config.headers['Authorization-Token'] = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1OTU0NTAwMH0.Wv69KKuUCYoHAtVP6qP9rAdoZOrSv5l70kZ8VillZNmJqV0Ty-LOnn6S87v-fjxVdHw-Pe0kqmEhMmm1AVEEqg'
+    config.headers['Authorization-Token'] = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc2MDE1NDI3N30.im_PCh9wPOgnWQ074wewLFM_qg8963HvYmb2z6YZGkvxERwcL1Xm8JLftYXSdtJ_9GLg2nIa1PqhpNjV4mgb_A'
     return config;
   },
   (error) => Promise.reject(error),
@@ -68,7 +67,7 @@ instance.interceptors.response.use(
         const successMsg = typeof cfg.showSuccess === 'string' ? cfg.showSuccess : (cfg.successMessage || '下载成功');
         message.success(successMsg);
       }
-      return response.data ;
+      return response.data;
     }
     const respData = response.data;
     if (respData && SUCCESS_CODES.includes(respData.code)) {
@@ -173,11 +172,10 @@ export function del<T>(url: string, params?: RequestParams, config?: RequestConf
 // 文件上传
 export function upload<T>(url: string, formData: FormData, config?: RequestConfig) {
   return request<T>({
-    url,
-    method: 'POST',
-    data: formData,
-    headers: { 'Content-Type': 'multipart/form-data', ...(config?.headers || {}) },
-    ...(config || {}),
+      url,
+      method: 'POST',
+      data: formData,
+      ...(config || {}),
   });
 }
 

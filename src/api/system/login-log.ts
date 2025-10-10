@@ -4,9 +4,9 @@
  * @author: mayn
  * @date: 2025/9/28 15:09
  */
-import {del, get, post} from "@/utils/http-request.ts";
+import {del, upload, get, post} from "@/utils/http-request.ts";
 import type {LoginLog} from "@/entity/system/login-log.ts";
-import type {BasePage, RequestParams} from "@/entity/common.ts";
+import type {BasePage, BaseResult, RequestParams} from "@/entity/common.ts";
 
 // 接口前缀
 const API_PREFIX = '/sysLoginLog'
@@ -47,7 +47,7 @@ export function updateLoginLog(data: RequestParams): Promise<LoginLog> {
  * 分页查询
  * @param data
  */
-export function pageLoginLog(data: RequestParams): Promise<BasePage<LoginLog>> {
+export function pageLoginLog(data: RequestParams): Promise<BaseResult<BasePage<LoginLog>>> {
   return post(API_PREFIX + '/page', data)
 }
 
@@ -65,3 +65,29 @@ export function getListLoginLog(data: RequestParams): Promise<Array<LoginLog>> {
 export function getLoginLogById(id: string): Promise<LoginLog> {
     return get(API_PREFIX + '/' + id)
 }
+
+/**
+ * 导出
+ * @param data 请求参数
+ */
+export function exportLoginLog(data: RequestParams): Promise<Blob> {
+    return post(API_PREFIX + '/export', data, { responseType: 'blob' })
+}
+
+
+/**
+ * 下载导入模板
+ */
+export function downLoginLogTemplate(): Promise<Blob> {
+    return get(API_PREFIX + '/template', {}, { responseType: 'blob' })
+}
+
+/**
+ * 导入
+ * @param data 请求参数
+ */
+export function importLoginLog(data: FormData): Promise<BaseResult<boolean>> {
+    return upload(API_PREFIX + '/import', data)
+}
+
+

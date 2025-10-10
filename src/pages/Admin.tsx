@@ -148,7 +148,7 @@ const Admin = (): ReactElement => {
                             margin: 0,
                             background: colorBgContainer,
                             borderRadius: borderRadiusLG,
-                            overflow: 'auto',
+                            overflow: 'hidden',
                             position: 'relative',
                         }}
                     >

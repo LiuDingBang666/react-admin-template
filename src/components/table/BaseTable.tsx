@@ -4,24 +4,30 @@
  * @author: mayn
  * @date: 2025/9/26 15:11
  */
+import type {TableProps} from 'antd'
 import {
-    Button, type ButtonProps,
+    Button,
+    type ButtonProps,
     Col,
-    Form, type FormProps,
-    type GetProp, message,
-    Pagination, Popconfirm,
-    Row, Space,
+    Form,
+    type FormProps,
+    type GetProp,
+    message,
+    Pagination,
+    Popconfirm,
+    Row,
+    Space,
     Table,
 } from "antd";
 import '@/assets/styles/crud.scss'
-import  type {TableProps} from 'antd'
 import FormDetail, {type FormDetailConfigProps} from "@/components/form/FormDetail.tsx";
 import FormUpdate from "@/components/form/FormUpdate.tsx";
 import BaseFormItem, {type BaseFormItemProps} from "@/components/form/BaseFormItem.tsx";
-import { type JSX, type ReactElement,  useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {type JSX, type ReactElement, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import type {BaseEntity, BasePage, BaseResult, RequestParams} from "@/entity/common.ts";
 import {PermissionWrapComponent} from "@/components/PermissionWrapComponent.tsx";
 import BaseDrawer, {type BaseDrawerRef} from "@/components/drawer/BaseDrawer.tsx";
+import ImportBtn from "@/components/import/ImportBtn.tsx";
 
 type OperatorType = '详情' | '修改' | '新增'
 
@@ -70,9 +76,11 @@ interface BaseTableProps<T extends BaseEntity> {
     // 分页api
     api: (params: RequestParams) => Promise<BaseResult<BasePage<T>>>
     // 导入api
-    importApi?: (params: RequestParams) => Promise<boolean>
+    importApi?: (params: FormData) => Promise<BaseResult<boolean>>
+    // 导入模板api
+    importTemplateApi?: () => Promise<Blob>
     // 导出api
-    exportApi?: (params: RequestParams) => Promise<string>
+    exportApi?: (params: RequestParams) => Promise<Blob>
     // 批量删除api
     deleteApi?: (ids: Array< string>) => Promise<boolean>
     // 新增api
@@ -178,6 +186,24 @@ function BaseTable(props: BaseTableProps<any>) {
         tableParams.pagination.current,
         tableParams.pagination.pageSize
     ]);
+
+    // 导出
+    function handleExport() {
+        if (props.exportApi !== undefined) {
+            props.exportApi({...tableParams.searchParams,...props.searchParams}).then(res => {
+                const blob = new Blob([res], { type: 'application/vnd.ms-excel' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = props.name + '_导出_' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + '.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+                message.success('导出成功')
+            })
+         }
+    }
 
     // 删除
     async function handlerDelConfirm(record: BaseEntity) {
@@ -374,14 +400,14 @@ function BaseTable(props: BaseTableProps<any>) {
                 // 先找到表格
                 const table = document.querySelector('.table-box')
                 if (table) {
-                    function getAllChildNodes(node: any) {
+                    function getAllChildNodes(node: HTMLElement) {
                         if (node != table) {
                             if (node.nodeType === Node.ELEMENT_NODE) {
                                 if (!nodeIsIncludeClass(node, 'table-box')) {
                                     otherHeight += node.clientHeight
                                 } else {
-                                    node.childNodes.forEach((item: any) => {
-                                        getAllChildNodes(item)
+                                    node.childNodes.forEach((item: ChildNode) => {
+                                        getAllChildNodes(item as HTMLElement)
                                     })
                                 }
                             }
@@ -389,13 +415,13 @@ function BaseTable(props: BaseTableProps<any>) {
                     }
 
                     // 判断某个node是否有包函className的节点
-                    function nodeIsIncludeClass(node: any, className: string) {
+                    function nodeIsIncludeClass(node: HTMLElement, className: string) {
                         if (node.nodeType === Node.ELEMENT_NODE && node.className && node.className.includes && node.className.includes(className)) {
                             return true
                         } else {
                             let flag = false
-                            node.childNodes.forEach((item: any) => {
-                                const result = nodeIsIncludeClass(item, className)
+                            node.childNodes.forEach((item: ChildNode) => {
+                                const result = nodeIsIncludeClass(item as HTMLElement, className)
                                 if (result) {
                                     flag = true
                                 }
@@ -473,9 +499,7 @@ function BaseTable(props: BaseTableProps<any>) {
                                 PermissionWrapComponent( {
                                     permission: props.permissionPrefix + '导入',
                                     children:   <Form.Item label={null}>
-                                        <Button type="primary" danger={true}>
-                                            导入
-                                        </Button>
+                                        <ImportBtn importAction={props.importApi} templateAction={props.importTemplateApi}/>
                                     </Form.Item>
                                 })
                             }
@@ -484,7 +508,7 @@ function BaseTable(props: BaseTableProps<any>) {
                                 props.exportApi &&  PermissionWrapComponent( {
                                     permission: props.permissionPrefix + '导出',
                                     children:  <Form.Item label={null}>
-                                        <Button color={"green"} type={"primary"} >
+                                        <Button color={"green"} type={"primary"} onClick={handleExport} >
                                             导出
                                         </Button>
                                     </Form.Item>

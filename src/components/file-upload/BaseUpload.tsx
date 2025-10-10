@@ -143,7 +143,11 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
 
     return (
         <Upload {...uploadProps} onPreview={handlerPreview}>
-            <Button icon={<UploadOutlined />}>点击上传</Button>
+            {
+                props.children ? props.children : (
+                    <Button icon={<UploadOutlined />}>点击上传</Button>
+                )
+            }
         </Upload>
     );
 }
