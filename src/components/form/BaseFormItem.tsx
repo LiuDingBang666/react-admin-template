@@ -1,11 +1,42 @@
-import {AutoComplete, Cascader, Checkbox,
-    ColorPicker, DatePicker, Form, Input, InputNumber, Mentions, Radio, Select, Slider, Switch, TimePicker,Rate,
-    Transfer, Upload, Button
+import type {
+    AutoCompleteProps,
+    CascaderProps,
+    CheckboxProps,
+    ColorPickerProps,
+    DatePickerProps,
+    FormItemProps,
+    FormProps,
+    InputNumberProps,
+    InputProps,
+    MentionsProps,
+    RadioProps,
+    RateProps,
+    SelectProps,
+    SliderSingleProps,
+    SwitchProps,
+    TimePickerProps,
+    TransferProps
+} from 'antd';
+import {
+    AutoComplete,
+    Cascader,
+    Checkbox,
+    ColorPicker,
+    DatePicker,
+    Form,
+    Input,
+    InputNumber,
+    Mentions,
+    Radio,
+    Rate,
+    Select,
+    Slider,
+    Switch,
+    TimePicker,
+    Transfer
 } from "antd";
 import type {BaseEntity} from "@/entity/common.ts";
 import React from "react";
-import type { AutoCompleteProps,CascaderProps,CheckboxProps,ColorPickerProps,DatePickerProps,FormProps,FormItemProps,InputProps,InputNumberProps,MentionsProps,RadioProps,RateProps,SelectProps,SliderSingleProps,SwitchProps,TimePickerProps,TransferProps,UploadProps } from 'antd';
-import {UploadOutlined} from "@ant-design/icons";
 import BaseUpload, {type BaseUploadProps} from "@/components/file-upload/BaseUpload.tsx";
 
 /**
