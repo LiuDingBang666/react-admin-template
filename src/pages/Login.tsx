@@ -52,16 +52,20 @@ export default function Login(): ReactElement {
     const { data } = await getRsaPublicKey();
     rsaPublicKey.current = data;
     const encryptPassword = RSA.encrypt(values.password, rsaPublicKey.current);
-    const { data: userInfo } = await passwordLogin({
-      username: values.username,
-      password: encryptPassword,
-      code: values.capture,
-      key: kaptchaId,
-      rsaPublicKey: rsaPublicKey.current,
-    });
-    message.success('登录成功');
-    setData(userInfo);
-    navigate('/admin');
+    try {
+      const { data: userInfo } = await passwordLogin({
+        username: values.username,
+        password: encryptPassword,
+        code: values.capture,
+        key: kaptchaId,
+        rsaPublicKey: rsaPublicKey.current,
+      });
+      message.success('登录成功');
+      setData(userInfo);
+      navigate('/admin');
+    } catch (e) {
+      refreshKaptcha();
+    }
   };
   const onFinishFailed = (errorInfo: ValidateErrorEntity) => {
     console.log('Failed:', errorInfo);
@@ -111,13 +115,15 @@ export default function Login(): ReactElement {
                 <Input placeholder="验证码" aria-label="验证码" maxLength={6} />{' '}
               </Col>
               <Col>
-                <Image
-                  onClick={refreshKaptcha}
-                  className="capture"
-                  preview={false}
-                  alt="验证码"
-                  src={kaptcha}
-                />
+                {kaptcha && (
+                  <Image
+                    onClick={refreshKaptcha}
+                    className="capture"
+                    preview={false}
+                    alt="验证码"
+                    src={kaptcha}
+                  />
+                )}
               </Col>
             </Row>
           </Form.Item>

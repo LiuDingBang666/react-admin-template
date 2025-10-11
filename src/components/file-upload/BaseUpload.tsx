@@ -13,7 +13,7 @@ import dayjs from 'dayjs';
  */
 
 // 组件支持的属性
-export interface BaseUploadProps extends UploadProps {
+export interface BaseUploadProps<T = any> extends UploadProps<T> {
   // 在文件改变后的回调
   onChange?: (fileList: UploadFile[]) => void;
 
@@ -107,8 +107,6 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     file.url = OSSData.dir + filename;
-    console.log(file.url);
-
     return file;
   };
 
