@@ -123,7 +123,7 @@ interface TableParams {
   searchParams: object;
 }
 
-function BaseTable(props: BaseTableProps) {
+function BaseTable(props: BaseTableProps<any>) {
   // page
   const [data, setData] = useState<Array<BaseEntity>>([]);
   const [loading, setLoading] = useState(false);

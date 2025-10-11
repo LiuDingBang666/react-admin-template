@@ -47,31 +47,29 @@ const Admin = (): ReactElement => {
     };
   });
 
-  // search params
-  // const [searchParams] = useSearchParams();
-  // console.log(searchParams);
-  //
-  // // path params
-  // const { id } = useParams();
-  // console.log(id);
-  //
-  // // router location params
-  // const { state } = useLocation();
-  // console.log(state.from);
-
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const { reset } = useUserStore();
   const router = useNavigate();
-  async function handlerClick(e: { key: string }) {
-    if (e.key === '5') {
+
+  // 修正类型并处理导航
+  const handlerClick: MenuProps['onClick'] = async ({ key }) => {
+    if (key === '2') {
+      router('/admin/profile');
+      return;
+    }
+    if (key === '4') {
+      router('/admin/settings');
+      return;
+    }
+    if (key === '5') {
       await logout();
       reset();
       router('/login');
       message.success('退出成功');
     }
-  }
+  };
 
   const items: MenuProps['items'] = [
     {

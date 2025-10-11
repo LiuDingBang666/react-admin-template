@@ -10,6 +10,9 @@ import { lazy } from 'react';
 const Login = lazy(() => import('@/pages/Login.tsx'));
 const Admin = lazy(() => import('@/pages/Admin.tsx'));
 const DemoCrud = lazy(() => import('@/pages/system/login-log/SysLoginLog.tsx'));
+// 新增静态页面路由
+const PersonalInfo = lazy(() => import('@/pages/profile/PersonalInfo.tsx'));
+const SystemSettings = lazy(() => import('@/pages/settings/SystemSettings.tsx'));
 
 const router = createBrowserRouter([
   {
@@ -27,6 +30,16 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <DemoCrud />,
+      },
+      // 个人信息静态路由
+      {
+        path: 'profile',
+        element: <PersonalInfo />,
+      },
+      // 系统设置静态路由
+      {
+        path: 'settings',
+        element: <SystemSettings />,
       },
     ],
   },
