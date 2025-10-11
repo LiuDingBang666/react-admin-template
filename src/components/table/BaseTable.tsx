@@ -105,6 +105,7 @@ interface BaseTableProps<T extends BaseEntity = BaseEntity> {
   onFormChange?: (params: RequestParams) => void;
   onDeleteBefore?: (params: Array<string>) => void;
   onUpdateBefore?: (params: RequestParams) => void;
+  onTypeChange?: (type: OperatorType, record?: T) => void;
 
   // 插槽操作-自定义情况
   slots?: {
@@ -322,7 +323,12 @@ function BaseTable(props: BaseTableProps<any>) {
   const [activeRecord, setActiveRecord] = useState<BaseEntity | null>({} as BaseEntity);
   // 操作类型
   const [type, setType] = useState<OperatorType>('新增');
-
+  // 类型变化
+  useEffect(() => {
+    if (props.onTypeChange) {
+      props.onTypeChange(type, activeRecord);
+    }
+  }, [activeRecord, props, type]);
   // 打开抽屉
   const showDrawer = async (type: OperatorType, record: BaseEntity | null = null) => {
     setType(type);
@@ -459,8 +465,10 @@ function BaseTable(props: BaseTableProps<any>) {
           console.warn('表格未找到,自动计算高度失败');
         }
       });
-      resizeObserver.observe(isObserverParent ? (parent as Element) : box);
-      observers.push(resizeObserver);
+      if (resizeObserver) {
+        resizeObserver.observe(isObserverParent ? (parent as Element) : box);
+        observers.push(resizeObserver);
+      }
     }
   }
 
