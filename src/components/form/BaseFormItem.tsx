@@ -1,21 +1,22 @@
-import type {
-  AutoCompleteProps,
-  CascaderProps,
-  CheckboxProps,
-  ColorPickerProps,
-  DatePickerProps,
-  FormItemProps,
-  InputNumberProps,
-  InputProps,
-  MentionsProps,
-  RadioProps,
-  RateProps,
-  SelectProps,
-  SliderSingleProps,
-  SwitchProps,
-  TimePickerProps,
-  TransferProps,
-  TreeSelectProps,
+import {
+  type AutoCompleteProps,
+  type CascaderProps,
+  type CheckboxProps,
+  type ColorPickerProps,
+  type DatePickerProps,
+  type FormItemProps,
+  type InputNumberProps,
+  type InputProps,
+  type MentionsProps,
+  type RadioProps,
+  type RateProps,
+  type SelectProps,
+  type SliderSingleProps,
+  type SwitchProps,
+  type TimePickerProps,
+  type TimeRangePickerProps,
+  type TransferProps,
+  type TreeSelectProps,
 } from 'antd';
 import {
   AutoComplete,
@@ -38,7 +39,12 @@ import {
 } from 'antd';
 
 import BaseUpload, { type BaseUploadProps } from '@/components/file-upload/BaseUpload.tsx';
+import type { RangePickerProps } from 'antd/es/date-picker';
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
+import type { RangePickerTimeProps } from 'antd/es/time-picker';
 
+dayjs.locale('zh-cn');
 /**
  * @name: 名称
  * @description: TODO 表单项组件
@@ -53,6 +59,8 @@ export interface BaseFormItemProps<T = any> {
   label: string;
   // 表单项配置
   placeholder?: string;
+  // 当前表单实例
+  updateForm?: (params: any) => void;
   // 校验规则
   rules?: object[];
   // 表单组件类型
@@ -62,6 +70,7 @@ export interface BaseFormItemProps<T = any> {
     | 'Checkbox'
     | 'ColorPicker'
     | 'DatePicker'
+    | 'DateRangePicker'
     | 'Input'
     | 'InputNumber'
     | 'Mentions'
@@ -71,6 +80,7 @@ export interface BaseFormItemProps<T = any> {
     | 'Slider'
     | 'Switch'
     | 'TimePicker'
+    | 'TimeRangePicker'
     | 'Transfer'
     | 'TreeSelect'
     | 'Upload';
@@ -94,7 +104,10 @@ export interface BaseFormItemProps<T = any> {
     | TimePickerProps
     | TransferProps
     | TreeSelectProps
-    | BaseUploadProps;
+    | BaseUploadProps
+    | RangePickerProps
+    | RangePickerTimeProps<any>
+    | TimeRangePickerProps;
 }
 
 // 用具名泛型定义组件，避免 React.FC 在泛型上的限制
@@ -105,6 +118,7 @@ const BaseFormItem = ({
   form,
   rules,
   props,
+  updateForm,
   placeholder,
 }: BaseFormItemProps) => {
   // 对于开关/复选框，Form.Item 需要 valuePropName='checked'
@@ -113,11 +127,27 @@ const BaseFormItem = ({
       ? { valuePropName: 'checked', ...(form || {}) }
       : form || {};
 
+  // 处理日期变化
+  function handlerDateChange(value) {
+    const config = props as any;
+    if (config.format) {
+      updateForm?.({
+        [name as string]: Array.isArray(value)
+          ? value.map((v) => v.format(config.format))
+          : value?.format(config.format),
+      });
+    }
+  }
+
   return (
     <>
       <Form.Item label={label} name={name as string} rules={rules} {...mergedFormItemProps}>
         {type === 'Input' && (
-          <Input placeholder={placeholder ?? '请输入' + label} {...(props as InputProps)} />
+          <Input
+            allowClear
+            placeholder={placeholder ?? '请输入' + label}
+            {...(props as InputProps)}
+          />
         )}
         {type === 'InputNumber' && (
           <InputNumber
@@ -139,8 +169,17 @@ const BaseFormItem = ({
         {type === 'TimePicker' && (
           <TimePicker
             allowClear
+            onChange={handlerDateChange}
             placeholder={placeholder ?? '请选择' + label}
             {...(props as TimePickerProps)}
+          />
+        )}
+        {type === 'TimeRangePicker' && (
+          <TimePicker.RangePicker
+            allowClear
+            onChange={handlerDateChange}
+            placeholder={['开始' + label, '结束' + label]}
+            {...(props as TimeRangePickerProps)}
           />
         )}
         {type === 'Upload' && <BaseUpload {...(props as BaseUploadProps)} />}
@@ -163,8 +202,17 @@ const BaseFormItem = ({
         {type === 'DatePicker' && (
           <DatePicker
             allowClear
+            onChange={handlerDateChange}
             placeholder={placeholder ?? '请选择' + label}
             {...(props as DatePickerProps)}
+          />
+        )}
+        {type === 'DateRangePicker' && (
+          <DatePicker.RangePicker
+            allowClear
+            onChange={handlerDateChange}
+            placeholder={['开始' + label, '结束' + label]}
+            {...(props as RangePickerProps)}
           />
         )}
         {type === 'Mentions' && (

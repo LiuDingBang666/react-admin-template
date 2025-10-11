@@ -5,20 +5,24 @@ import BaseFormItem, { type BaseFormItemProps } from '@/components/form/BaseForm
 
 interface UpdateProps<T extends BaseEntity> {
   record: T | null;
-  onClose: () => void;
+  close: () => void;
+  closeAndRefresh: () => void;
   formConfig?: FormProps;
   formItems?: Array<BaseFormItemProps<T>>;
   update?: (record: T) => Promise<T>;
   add?: (record: T) => Promise<T>;
+  handlerValueChange?: (changedValues: object, allValues: object) => void;
 }
 
 const FormUpdate: React.FC<UpdateProps<BaseEntity>> = function Update({
   record,
-  onClose,
+  close,
+  closeAndRefresh,
   formConfig,
   formItems,
   update,
   add,
+  handlerValueChange,
 }) {
   const [formData, setFormData] = React.useState<BaseEntity>(record ?? ({} as BaseEntity));
 
@@ -43,6 +47,11 @@ const FormUpdate: React.FC<UpdateProps<BaseEntity>> = function Update({
     form.setFieldsValue(record);
   }, [record]);
 
+  // 处理时间数据
+  function handlerUpdateForm(value: object) {
+    setFormData({ ...formData, ...value });
+  }
+
   const onFinish = async (values: BaseEntity) => {
     const afterValues = { ...formData, ...values };
     console.log(afterValues);
@@ -53,7 +62,7 @@ const FormUpdate: React.FC<UpdateProps<BaseEntity>> = function Update({
       await add!(afterValues);
       message.success('添加成功');
     }
-    onClose();
+    closeAndRefresh();
   };
 
   return (
@@ -63,10 +72,11 @@ const FormUpdate: React.FC<UpdateProps<BaseEntity>> = function Update({
         form={form}
         {...layout}
         name="control-hooks"
+        onValuesChange={handlerValueChange}
         onFinish={onFinish}
       >
         {formItems?.map((item, index) => {
-          return <BaseFormItem key={index} {...item} />;
+          return <BaseFormItem updateForm={handlerUpdateForm} key={index} {...item} />;
         })}
         <Form.Item {...tailLayout}>
           <Space>
@@ -74,7 +84,7 @@ const FormUpdate: React.FC<UpdateProps<BaseEntity>> = function Update({
               确定
             </Button>
 
-            <Button htmlType="button" onClick={onClose}>
+            <Button htmlType="button" onClick={close}>
               取消
             </Button>
           </Space>

@@ -23,7 +23,7 @@ import '@/assets/styles/crud.scss';
 import FormDetail, { type FormDetailConfigProps } from '@/components/form/FormDetail.tsx';
 import FormUpdate from '@/components/form/FormUpdate.tsx';
 import BaseFormItem, { type BaseFormItemProps } from '@/components/form/BaseFormItem.tsx';
-import {
+import React, {
   type JSX,
   type ReactElement,
   useCallback,
@@ -53,6 +53,7 @@ interface OperatorProps<T extends BaseEntity> {
 }
 
 interface BaseTableProps<T extends BaseEntity = BaseEntity> {
+  children?: JSX.Element | null;
   // 基础配置
 
   // 搜索栏配置
@@ -101,16 +102,17 @@ interface BaseTableProps<T extends BaseEntity = BaseEntity> {
   detail?: FormDetailConfigProps<T>[] | null | undefined;
 
   // 事件
+  onValueChange?: (changedValues: object, allValues: object) => void;
   onSearchBefore?: (params: RequestParams) => void;
-  onFormChange?: (params: RequestParams) => void;
+  onGetDetailAfter?: (params: T) => void;
   onDeleteBefore?: (params: Array<string>) => void;
   onUpdateBefore?: (params: RequestParams) => void;
   onTypeChange?: (type: OperatorType, record?: T) => void;
 
   // 插槽操作-自定义情况
   slots?: {
-    detail: (record: T) => JSX.Element;
-    update: (record: T) => JSX.Element;
+    detail: (props: { record: T; close: () => void; closeAndRefresh: () => void }) => JSX.Element;
+    update: (props: { record: T; close: () => void; closeAndRefresh: () => void }) => JSX.Element;
   };
 }
 
@@ -139,11 +141,22 @@ function BaseTable(props: BaseTableProps<any>) {
   });
 
   // 查询
-  async function onSearch(values: RequestParams) {
-    if (props.onSearchBefore) {
-      props.onSearchBefore(values);
+  async function onSearch(values: RequestParams, search = true) {
+    setTableParams({
+      ...tableParams,
+      searchParams: {
+        ...tableParams.searchParams,
+        ...values,
+      },
+    });
+    if (search) {
+      fetchData();
     }
-    fetchData(values);
+  }
+
+  // 更新表单值
+  function handlerUpdateForm(changedValues: any) {
+    onSearch(changedValues, false);
   }
 
   // 分页
@@ -165,11 +178,12 @@ function BaseTable(props: BaseTableProps<any>) {
         if (props.api !== undefined) {
           setData([]);
           setLoading(true);
-
+          const values = { ...tableParams.searchParams, ...props.searchParams, ...extraParams };
+          if (props.onSearchBefore) {
+            props.onSearchBefore(values);
+          }
           const { data } = await props.api({
-            ...tableParams.searchParams,
-            ...props.searchParams,
-            ...extraParams,
+            ...values,
             pageNum: tableParams.pagination.current,
             pageSize: tableParams.pagination.pageSize,
           });
@@ -190,9 +204,6 @@ function BaseTable(props: BaseTableProps<any>) {
   );
 
   // 初始加载
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   // 变化加载
   useEffect(fetchData, [tableParams.pagination.current, tableParams.pagination.pageSize]);
@@ -325,6 +336,8 @@ function BaseTable(props: BaseTableProps<any>) {
   const [type, setType] = useState<OperatorType>('新增');
   // 类型变化
   useEffect(() => {
+    console.log('load');
+
     if (props.onTypeChange) {
       props.onTypeChange(type, activeRecord);
     }
@@ -336,12 +349,15 @@ function BaseTable(props: BaseTableProps<any>) {
     if (record) {
       if (props.detailApi !== undefined) {
         const { data } = await props.detailApi(record.id);
+        if (props.onGetDetailAfter) {
+          props.onGetDetailAfter(data);
+        }
         setActiveRecord(data as BaseEntity);
       } else {
         setActiveRecord(record);
       }
     } else {
-      setActiveRecord(null);
+      setActiveRecord({} as BaseEntity);
     }
   };
 
@@ -367,16 +383,24 @@ function BaseTable(props: BaseTableProps<any>) {
   // 渲染内容
   const RenderContent = useMemo<ReactElement>(() => {
     return (
-      type !== '详情'
-        ? (props.slots?.update ?? (
-            <FormUpdate
-              record={activeRecord}
-              onClose={onRefresh}
-              formConfig={props.form}
-              formItems={props.formItems}
-            />
-          ))
-        : (props.slots?.detail ?? <FormDetail record={activeRecord} config={props.detail} />)
+      type !== '详情' ? (
+        props.slots?.update ? (
+          <props.slots.update record={activeRecord} close={onClose} closeAndRefresh={onRefresh} />
+        ) : (
+          <FormUpdate
+            record={activeRecord}
+            close={onClose}
+            closeAndRefresh={onRefresh}
+            formConfig={props.form}
+            formItems={props.formItems}
+            handlerValueChange={props.onValueChange}
+          />
+        )
+      ) : props.slots?.detail ? (
+        <props.slots.detail record={activeRecord} close={onClose} closeAndRefresh={onRefresh} />
+      ) : (
+        <FormDetail record={activeRecord} config={props.detail} />
+      )
     ) as ReactElement;
   }, [
     activeRecord,
@@ -494,7 +518,9 @@ function BaseTable(props: BaseTableProps<any>) {
         item.disconnect();
       });
     };
-  }, []);
+  }, [observerDomAutoFitTableHeight, observers, props.searchs]);
+
+  const [form] = Form.useForm();
 
   return (
     <>
@@ -503,6 +529,7 @@ function BaseTable(props: BaseTableProps<any>) {
         <Row className="search">
           <Form
             name="basic"
+            form={form}
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
             initialValues={{ remember: true }}
@@ -511,7 +538,7 @@ function BaseTable(props: BaseTableProps<any>) {
             layout={'inline'}
           >
             {props.searchs.map((item, index) => (
-              <BaseFormItem {...item} key={index} />
+              <BaseFormItem {...item} key={index} updateForm={handlerUpdateForm} />
             ))}
 
             <Form.Item label={null}>
@@ -634,6 +661,7 @@ function BaseTable(props: BaseTableProps<any>) {
           {RenderContent}
         </BaseDrawer>
       </div>
+      {props.children}
     </>
   );
 }

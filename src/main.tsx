@@ -13,11 +13,19 @@ const px2rem = px2remTransformer({
 });
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  import.meta.env.DEV ? (
     <ConfigProvider locale={zhCN}>
       <StyleProvider transformers={[px2rem]}>
         <App />
       </StyleProvider>
     </ConfigProvider>
-  </StrictMode>,
+  ) : (
+    <StrictMode>
+      <ConfigProvider locale={zhCN}>
+        <StyleProvider transformers={[px2rem]}>
+          <App />
+        </StyleProvider>
+      </ConfigProvider>
+    </StrictMode>
+  ),
 );

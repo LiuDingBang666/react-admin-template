@@ -34,7 +34,7 @@ const details: FormDetailConfigProps<LoginLog>[] = [
       },
       {
         title: '登录时间',
-        column: 'loginTime',
+        column: 'createTime',
       },
       {
         title: '浏览器类型',

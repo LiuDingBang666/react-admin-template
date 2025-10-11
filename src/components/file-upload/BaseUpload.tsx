@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { App, Button, Upload, type UploadFile, type UploadProps } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { post } from '@/utils/http-request.ts';
@@ -68,11 +68,6 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
       }
     }
   };
-
-  useEffect(() => {
-    init();
-    // observer
-  }, []);
 
   const handleChange: UploadProps['onChange'] = ({ fileList }) => {
     console.log('Aliyun OSS:', fileList);

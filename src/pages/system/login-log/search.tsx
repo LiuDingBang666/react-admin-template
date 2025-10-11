@@ -18,6 +18,15 @@ const searchs: Array<BaseFormItemProps<LoginLog>> = [
     type: 'Input',
   },
   {
+    name: 'loginTimes',
+    label: '登录时间',
+    type: 'DateRangePicker',
+    props: {
+      showTime: true,
+      format: 'YYYY-MM-DD HH:mm:ss',
+    },
+  },
+  {
     name: 'status',
     label: '登录状态',
     type: 'Select',
