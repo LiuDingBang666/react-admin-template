@@ -190,7 +190,7 @@ function BaseTable(props: BaseTableProps<any>) {
           setData(() => data.list as Array<BaseEntity>);
           setLoading(false);
           setTableParams({
-            ...tableParams,
+            searchParams: values,
             pagination: {
               ...tableParams.pagination,
               total: data.total,
