@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import { useUserStore } from '@/store/user-store.ts';
 
 /**
  * PermissionWrapComponent.tsx
@@ -9,6 +10,8 @@ export function PermissionWrapComponent(props: {
   permission: string;
   children: ReactElement;
 }): ReactElement {
-  const isPermission = true;
+  const userInfo = useUserStore().data;
+  const values = userInfo.permissions ? userInfo.permissions.map((val) => val.name) : [];
+  const isPermission = userInfo.type === 2 || values.includes(props.permission);
   return <>{isPermission && props.children}</>;
 }
