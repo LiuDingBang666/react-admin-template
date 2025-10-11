@@ -15,6 +15,7 @@ import type {
 import { message } from 'antd';
 import type { BaseResult, RequestParams } from '@/entity/common.ts';
 import { useUserStore } from '@/store/user-store.ts';
+import router from '@/router';
 
 /**
  * 统一的业务成功 code（可根据后端规范修改）
@@ -120,8 +121,10 @@ instance.interceptors.response.use(
     const status = error.response?.status;
     let msg = '网络异常';
     if (status) {
-      if (status === 401) msg = '未授权或登录过期';
-      else if (status === 403) msg = '无权限访问';
+      if (status === 401) {
+        msg = '未授权或登录过期';
+        router.navigate('/login', { replace: true });
+      } else if (status === 403) msg = '无权限访问';
       else if (status === 404) msg = '资源不存在';
       else if (status >= 500) msg = '服务器内部错误';
     }

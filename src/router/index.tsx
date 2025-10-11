@@ -44,7 +44,6 @@ const router = createBrowserRouter([
     ],
   },
 ]);
-
 router.subscribe((state) => {
   console.log(state);
 });
