@@ -1,4 +1,4 @@
-import type {BaseEntity} from "@/entity/common.ts";
+import type { BaseEntity } from '@/entity/common.ts';
 
 /**
  * @name: 名称
@@ -6,14 +6,14 @@ import type {BaseEntity} from "@/entity/common.ts";
  * @author: mayn
  * @date: 2number25/9/28 15:number8
  */
-export interface LoginLog extends BaseEntity{
-    "userId": number
-    "username": string
-    "ip": string
-    "location": string
-    "browser": string
-    "os": string
-    "status": number
-    "msg": string
-    "loginTime": string
+export interface LoginLog extends BaseEntity {
+  userId: number;
+  username: string;
+  ip: string;
+  location: string;
+  browser: string;
+  os: string;
+  status: number;
+  msg: string;
+  loginTime: string;
 }

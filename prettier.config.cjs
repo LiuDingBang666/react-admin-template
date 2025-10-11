@@ -1,13 +1,11 @@
-// Prettier config (ESM) because package.json has "type": "module"
-export default {
-  // 单行长度
+// Prettier configuration (CommonJS) — works regardless of package.json "type"
+/** @type {import('prettier').Config} */
+module.exports = {
   printWidth: 100,
   tabWidth: 2,
   useTabs: false,
-  // 行尾分号
   semi: true,
   singleQuote: true,
-  // 尾随逗号
   trailingComma: 'all',
   bracketSpacing: true,
   arrowParens: 'always',

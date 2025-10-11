@@ -1,4 +1,4 @@
-import type {ReactElement} from "react";
+import type { ReactElement } from 'react';
 
 /**
  * PermissionWrapComponent.tsx
@@ -6,13 +6,9 @@ import type {ReactElement} from "react";
  * @constructor
  */
 export function PermissionWrapComponent(props: {
-    permission: string;
-    children: ReactElement;
+  permission: string;
+  children: ReactElement;
 }): ReactElement {
-    const isPermission = true;
-    return (
-        <>
-            {isPermission && props.children}
-        </>
-    )
+  const isPermission = true;
+  return <>{isPermission && props.children}</>;
 }

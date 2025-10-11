@@ -6,9 +6,14 @@
  */
 
 import axios from 'axios';
-import type { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig, AxiosError } from 'axios';
+import type {
+  AxiosInstance,
+  AxiosRequestConfig,
+  InternalAxiosRequestConfig,
+  AxiosError,
+} from 'axios';
 import { message } from 'antd';
-import type {BaseResult, RequestParams } from "@/entity/common.ts";
+import type { BaseResult, RequestParams } from '@/entity/common.ts';
 
 /**
  * 统一的业务成功 code（可根据后端规范修改）
@@ -20,12 +25,11 @@ const SUCCESS_CODES: Array<number> = [0, 200, 20000];
  */
 const DEFAULT_TIMEOUT = 15_000;
 
-
 /**
  * 获取 token 优先顺序：自定义 resolver -> staticToken -> localStorage('token')
  */
 function getToken(): string | undefined {
-  return (localStorage.getItem('token')) as string | undefined;
+  return localStorage.getItem('token') as string | undefined;
 }
 
 /**
@@ -47,7 +51,8 @@ instance.interceptors.request.use(
       config.headers.Authorization = config.headers.Authorization || `Bearer ${token}`;
     }
 
-    config.headers['Authorization-Token'] = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc2MDE1NDI3N30.im_PCh9wPOgnWQ074wewLFM_qg8963HvYmb2z6YZGkvxERwcL1Xm8JLftYXSdtJ_9GLg2nIa1PqhpNjV4mgb_A'
+    config.headers['Authorization-Token'] =
+      'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc2MDE1NDI3N30.im_PCh9wPOgnWQ074wewLFM_qg8963HvYmb2z6YZGkvxERwcL1Xm8JLftYXSdtJ_9GLg2nIa1PqhpNjV4mgb_A';
     return config;
   },
   (error) => Promise.reject(error),
@@ -58,13 +63,13 @@ instance.interceptors.request.use(
  */
 instance.interceptors.response.use(
   (response) => {
-
     const cfg = response.config as RequestConfig;
 
     // 文件流直接返回
     if (response.request?.responseType === 'blob' || response.config.responseType === 'blob') {
       if (cfg.showSuccess) {
-        const successMsg = typeof cfg.showSuccess === 'string' ? cfg.showSuccess : (cfg.successMessage || '下载成功');
+        const successMsg =
+          typeof cfg.showSuccess === 'string' ? cfg.showSuccess : cfg.successMessage || '下载成功';
         message.success(successMsg);
       }
       return response.data;
@@ -72,9 +77,10 @@ instance.interceptors.response.use(
     const respData = response.data;
     if (respData && SUCCESS_CODES.includes(respData.code)) {
       if (cfg.showSuccess) {
-        const successMsg = typeof cfg.showSuccess === 'string'
-          ? cfg.showSuccess
-          : (cfg.successMessage || respData.message || '操作成功');
+        const successMsg =
+          typeof cfg.showSuccess === 'string'
+            ? cfg.showSuccess
+            : cfg.successMessage || respData.message || '操作成功';
         message.success(successMsg);
       }
       return respData;
@@ -88,9 +94,10 @@ instance.interceptors.response.use(
     };
     const showError = (response.config as RequestConfig).showError;
     if (showError !== false) {
-      const errorMsg = typeof showError === 'string'
-        ? showError
-        : ((response.config as RequestConfig).errorMessage || errObj.message);
+      const errorMsg =
+        typeof showError === 'string'
+          ? showError
+          : (response.config as RequestConfig).errorMessage || errObj.message;
       message.error(errorMsg);
     }
     return Promise.reject(errObj);
@@ -100,10 +107,11 @@ instance.interceptors.response.use(
     // 取消请求
     if (axios.isCancel(error) || error.name === 'CanceledError') {
       if (cfg.showError) {
-        const cancelMsg = typeof cfg.showError === 'string' ? cfg.showError : (cfg.errorMessage || '请求已取消');
+        const cancelMsg =
+          typeof cfg.showError === 'string' ? cfg.showError : cfg.errorMessage || '请求已取消';
         message.warning(cancelMsg);
       }
-      return Promise.reject({isCanceled: true, message: '请求已取消'});
+      return Promise.reject({ isCanceled: true, message: '请求已取消' });
     }
     const status = error.response?.status;
     let msg = '网络异常';
@@ -120,9 +128,8 @@ instance.interceptors.response.use(
       raw: error,
     };
     if (cfg.showError !== false) {
-      const errorMsg = typeof cfg.showError === 'string'
-        ? cfg.showError
-        : (cfg.errorMessage || errObj.message);
+      const errorMsg =
+        typeof cfg.showError === 'string' ? cfg.showError : cfg.errorMessage || errObj.message;
       message.error(errorMsg);
     }
     return Promise.reject(errObj);
@@ -151,31 +158,30 @@ export function request<T>(config: RequestConfig): Promise<T> {
   return instance.request<BaseResult<T>, T>(config);
 }
 
-
 //  快捷方法
 export function get<T>(url: string, params?: RequestParams, config?: RequestConfig) {
-  return request<T>({url, method: 'GET', params, ...(config || {})});
+  return request<T>({ url, method: 'GET', params, ...(config || {}) });
 }
 export function post<T>(url: string, data?: RequestParams, config?: RequestConfig) {
-  return request<T>({url, method: 'POST', data, ...(config || {})});
+  return request<T>({ url, method: 'POST', data, ...(config || {}) });
 }
 export function put<T>(url: string, data?: RequestParams, config?: RequestConfig) {
-  return request<T>({url, method: 'PUT', data, ...(config || {})});
+  return request<T>({ url, method: 'PUT', data, ...(config || {}) });
 }
 export function patch<T>(url: string, data?: RequestParams, config?: RequestConfig) {
-  return request<T>({url, method: 'PATCH', data, ...(config || {})});
+  return request<T>({ url, method: 'PATCH', data, ...(config || {}) });
 }
 export function del<T>(url: string, params?: RequestParams, config?: RequestConfig) {
-  return request<T>({url, method: 'DELETE', params, ...(config || {})});
+  return request<T>({ url, method: 'DELETE', params, ...(config || {}) });
 }
 
 // 文件上传
 export function upload<T>(url: string, formData: FormData, config?: RequestConfig) {
   return request<T>({
-      url,
-      method: 'POST',
-      data: formData,
-      ...(config || {}),
+    url,
+    method: 'POST',
+    data: formData,
+    ...(config || {}),
   });
 }
 

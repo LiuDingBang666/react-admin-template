@@ -1,17 +1,19 @@
+import './App.css';
+import { RouterProvider } from 'react-router-dom';
 
-import './App.css'
-import {RouterProvider} from "react-router-dom";
-
-import router from "@/router";
+import router from '@/router';
 
 function App() {
-    return (
-        <>
-            <RouterProvider router={router}   future={{
-                v7_startTransition: true,
-            }}/>
-        </>
-  )
+  return (
+    <>
+      <RouterProvider
+        router={router}
+        future={{
+          v7_startTransition: true,
+        }}
+      />
+    </>
+  );
 }
 
-export default App
+export default App;
