@@ -48,6 +48,8 @@ export default defineConfig([
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       // Optional: turn off rule that conflicts with React 17+ JSX transform
       'react/react-in-jsx-scope': 'off',
+      // Allow using any explicitly
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   // Disable stylistic rules that might conflict with Prettier
