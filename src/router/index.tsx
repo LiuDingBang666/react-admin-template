@@ -14,10 +14,14 @@ const DemoCrud = lazy(() => import('@/pages/system/login-log/SysLoginLog.tsx'));
 const router = createBrowserRouter([
   {
     path: '/',
+    element: <Admin />,
+  },
+  {
+    path: '/login',
     element: <Login />,
   },
   {
-    path: '/admin/:id',
+    path: '/admin',
     element: <Admin />,
     children: [
       {

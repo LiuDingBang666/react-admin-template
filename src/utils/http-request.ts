@@ -64,7 +64,9 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response) => {
     const cfg = response.config as RequestConfig;
-
+    if (cfg.returnFullResponse) {
+      return response;
+    }
     // 文件流直接返回
     if (response.request?.responseType === 'blob' || response.config.responseType === 'blob') {
       if (cfg.showSuccess) {
@@ -148,6 +150,8 @@ export interface RequestFeedbackOptions {
   successMessage?: string;
   /** 自定义失败消息优先级高于错误内置 message */
   errorMessage?: string;
+  /** 是否返回全部数据 **/
+  returnFullResponse?: boolean;
 }
 export type RequestConfig<T = object> = AxiosRequestConfig<T> & RequestFeedbackOptions;
 

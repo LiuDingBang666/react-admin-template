@@ -10,38 +10,62 @@ import type { FormProps } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { ValidateErrorEntity } from 'rc-field-form/lib/interface';
 import { useUserStore } from '@/store/user-store.ts';
-import type { ReactElement } from 'react';
+import { type ReactElement, useEffect, useRef, useState } from 'react';
+import { getKaptcha, getRsaPublicKey, passwordLogin } from '@/api/system/login.ts';
+import RSA from '@/utils/rsa.ts';
+// Define form values type
+interface LoginFormValues {
+  username: string;
+  password: string;
+  capture: string;
+  remember?: boolean;
+}
 
 export default function Login(): ReactElement {
-  // Define form values type
-  interface LoginFormValues {
-    username: string;
-    password: string;
-    capture: string;
-    remember?: boolean;
-  }
-
   const screens = Grid.useBreakpoint();
   const isMobile = !screens.md; // md and up considered desktop
 
   const navigate = useNavigate();
 
-  const { setName } = useUserStore();
+  const { setData } = useUserStore();
+  const [kaptcha, setKaptcha] = useState<string>('');
+  const [kaptchaId, setKaptchaId] = useState<string>('');
 
-  const onFinish: FormProps<LoginFormValues>['onFinish'] = (values) => {
-    console.log('Success:', values);
-    navigate('/admin/10086?a=1', {
-      state: {
-        from: 'test demo',
-      },
+  function refreshKaptcha() {
+    getKaptcha().then((res) => {
+      const url = URL.createObjectURL(res.data);
+      setKaptchaId((res.headers! as { kaptchaid: string }).kaptchaid);
+      setKaptcha(url);
+    });
+  }
+
+  useEffect(() => {
+    refreshKaptcha();
+  }, []);
+
+  // rsa
+  const rsaPublicKey = useRef<string>('');
+
+  const onFinish: FormProps<LoginFormValues>['onFinish'] = async (values) => {
+    const { data } = await getRsaPublicKey();
+    rsaPublicKey.current = data;
+    const encryptPassword = RSA.encrypt(values.password, rsaPublicKey.current);
+    const { data: userInfo } = await passwordLogin({
+      username: values.username,
+      password: encryptPassword,
+      code: values.capture,
+      key: kaptchaId,
+      rsaPublicKey: rsaPublicKey.current,
     });
     message.success('登录成功');
-    setName(values.username);
+    setData(userInfo);
+    navigate('/admin');
   };
   const onFinishFailed = (errorInfo: ValidateErrorEntity) => {
     console.log('Failed:', errorInfo);
   };
   const [form] = Form.useForm();
+
   return (
     <Row className="login" justify={'center'} align={'middle'}>
       <Col className="login-form simple" xs={22} sm={16} md={10} lg={7} xl={6}>
@@ -86,10 +110,11 @@ export default function Login(): ReactElement {
               </Col>
               <Col>
                 <Image
+                  onClick={refreshKaptcha}
                   className="capture"
                   preview={false}
                   alt="验证码"
-                  src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+                  src={kaptcha}
                 />
               </Col>
             </Row>

@@ -147,7 +147,7 @@ const BaseFormItem: React.FC<BaseFormItemProps<T>> = function ({
           <Cascader
             allowClear={true}
             placeholder={placeholder ?? '请选择' + label}
-            {...(props as any)}
+            {...(props as CascaderProps)}
           />
         )}
         {type === 'Checkbox' && <Checkbox {...(props as CheckboxProps)} />}

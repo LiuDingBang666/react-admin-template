@@ -22,7 +22,7 @@ import { useUserStore } from '@/store/user-store.ts';
 const { Header, Content, Sider } = Layout;
 
 const Admin = (): ReactElement => {
-  const { name } = useUserStore();
+  const { getName } = useUserStore();
 
   const items1: MenuProps['items'] = ['1'].map((key) => ({
     key,
@@ -47,16 +47,16 @@ const Admin = (): ReactElement => {
   });
 
   // search params
-  const [searchParams] = useSearchParams();
-  console.log(searchParams);
-
-  // path params
-  const { id } = useParams();
-  console.log(id);
-
-  // router location params
-  const { state } = useLocation();
-  console.log(state.from);
+  // const [searchParams] = useSearchParams();
+  // console.log(searchParams);
+  //
+  // // path params
+  // const { id } = useParams();
+  // console.log(id);
+  //
+  // // router location params
+  // const { state } = useLocation();
+  // console.log(state.from);
 
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -65,14 +65,14 @@ const Admin = (): ReactElement => {
   const router = useNavigate();
   function handlerClick(e: Event) {
     console.log(e);
-    router('/');
+    router('/login');
     message.success('退出成功');
   }
 
   const items: MenuProps['items'] = [
     {
       key: '1',
-      label: name,
+      label: getName(),
       disabled: true,
     },
     {
@@ -114,7 +114,7 @@ const Admin = (): ReactElement => {
           <Dropdown menu={{ items, onClick: handlerClick }}>
             <a>
               <Space>
-                {name}
+                {getName()}
                 <DownOutlined />
               </Space>
             </a>
