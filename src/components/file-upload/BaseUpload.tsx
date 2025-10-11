@@ -4,6 +4,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { post } from '@/utils/http-request.ts';
 import type { BaseResult, RequestParams } from '@/entity/common.ts';
 import dayjs from 'dayjs';
+import type { UploadChangeParam } from 'antd/es/upload/interface';
 
 /**
  * @name: 名称
@@ -14,9 +15,6 @@ import dayjs from 'dayjs';
 
 // 组件支持的属性
 export interface BaseUploadProps<T = any> extends UploadProps<T> {
-  // 在文件改变后的回调
-  onChange?: (fileList: UploadFile[]) => void;
-
   // oss上传专门配置
   // 阿里云oss配置
   bucket?: string;
@@ -77,12 +75,12 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
 
   const handleChange: UploadProps['onChange'] = ({ fileList }) => {
     console.log('Aliyun OSS:', fileList);
-    props.onChange?.([...fileList]);
+    props.onChange?.([...fileList] as unknown as UploadChangeParam<UploadFile>);
   };
 
   const onRemove = (file: UploadFile) => {
     const files = (props.fileList || []).filter((v) => v.url !== file.url);
-    props.onChange?.(files);
+    props.onChange?.(files as unknown as UploadChangeParam<UploadFile>);
   };
 
   const getExtraData: UploadProps['data'] = (file) => {
