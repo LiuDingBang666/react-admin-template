@@ -38,8 +38,10 @@ export default function Login(): ReactElement {
       setKaptcha(url);
     });
   }
+  const { reset } = useUserStore();
 
   useEffect(() => {
+    reset();
     refreshKaptcha();
   }, []);
 

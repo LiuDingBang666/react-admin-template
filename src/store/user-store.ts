@@ -14,22 +14,22 @@ interface UserStore {
   isLogin: () => boolean;
   getToken: () => string | undefined;
   getName: () => string | undefined;
+  reset: () => void;
 }
 
 export const useUserStore = create<UserStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       data: {} as LoginUserInfo,
       setData: (data) => set(() => ({ data })),
-      isLogin: () => {
-        return useUserStore.getState().data.token;
-      },
+      isLogin: () => !!get().data.token,
       getToken: () => {
-        return useUserStore.getState().data.token;
+        return get().data.token;
       },
       getName: () => {
-        return useUserStore.getState().data.username;
+        return get().data.username;
       },
+      reset: () => set(() => ({ data: {} as LoginUserInfo })),
     }),
     {
       name: 'user-store',

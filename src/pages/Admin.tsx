@@ -16,8 +16,9 @@ import {
 } from '@ant-design/icons';
 import { Dropdown, type MenuProps, message, Space } from 'antd';
 import { Breadcrumb, Layout, Menu, theme, Image } from 'antd';
-import { Outlet, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useUserStore } from '@/store/user-store.ts';
+import { logout } from '@/api/system/login.ts';
 
 const { Header, Content, Sider } = Layout;
 
@@ -61,12 +62,15 @@ const Admin = (): ReactElement => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
-
+  const { reset } = useUserStore();
   const router = useNavigate();
-  function handlerClick(e: Event) {
-    console.log(e);
-    router('/login');
-    message.success('退出成功');
+  async function handlerClick(e: { key: string }) {
+    if (e.key === '5') {
+      await logout();
+      reset();
+      router('/login');
+      message.success('退出成功');
+    }
   }
 
   const items: MenuProps['items'] = [

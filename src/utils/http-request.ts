@@ -14,6 +14,7 @@ import type {
 } from 'axios';
 import { message } from 'antd';
 import type { BaseResult, RequestParams } from '@/entity/common.ts';
+import { useUserStore } from '@/store/user-store.ts';
 
 /**
  * 统一的业务成功 code（可根据后端规范修改）
@@ -29,7 +30,12 @@ const DEFAULT_TIMEOUT = 15_000;
  * 获取 token 优先顺序：自定义 resolver -> staticToken -> localStorage('token')
  */
 function getToken(): string | undefined {
-  return localStorage.getItem('token') as string | undefined;
+  try {
+    const { getToken } = useUserStore.getState();
+    return getToken();
+  } catch (e) {
+    return undefined;
+  }
 }
 
 /**
@@ -45,14 +51,10 @@ const instance: AxiosInstance = axios.create({
  */
 instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // todo 加 token
     const token = getToken();
     if (token && config.headers) {
-      config.headers.Authorization = config.headers.Authorization || `Bearer ${token}`;
+      config.headers['Authorization-Token'] = token;
     }
-
-    config.headers['Authorization-Token'] =
-      'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc2MDE1NDI3N30.im_PCh9wPOgnWQ074wewLFM_qg8963HvYmb2z6YZGkvxERwcL1Xm8JLftYXSdtJ_9GLg2nIa1PqhpNjV4mgb_A';
     return config;
   },
   (error) => Promise.reject(error),
