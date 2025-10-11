@@ -4,38 +4,12 @@
  * @date: 2025/10/11 11:17
  */
 
-/**
- * 通用审计字段（不含 id）
- */
-export interface AuditMeta {
-  /** 创建时间 ISO 字符串 */
-  createdAt: string;
-  /** 修改时间 ISO 字符串 */
-  updatedAt: string;
-  /** 创建人 ID */
-  createdBy: number;
-  /** 修改人 ID */
-  updatedBy: number;
-  /** 逻辑删除标记（0/1） */
-  deleted: number;
-  /** 版本号 */
-  version: number;
-  /** 备注 */
-  remark: string;
-}
-
-/**
- * 通用带主键实体
- */
-export interface EntityWithId extends AuditMeta {
-  /** 主键 */
-  id: string;
-}
+import type { BaseEntity } from '@/entity/common.ts';
 
 /**
  * 角色-权限 关联（通常是中间表）
  */
-export interface RolePermissionRef extends EntityWithId {
+export interface RolePermissionRef extends BaseEntity {
   /** 角色 ID */
   roleId: string;
   /** 权限 ID */
@@ -45,7 +19,7 @@ export interface RolePermissionRef extends EntityWithId {
 /**
  * 权限定义
  */
-export interface Permission extends EntityWithId {
+export interface Permission extends BaseEntity {
   /** 菜单/资源 ID（后端字段名） */
   fkMenuId: string;
   /** 权限名 */
@@ -59,7 +33,7 @@ export interface Permission extends EntityWithId {
 /**
  * 角色定义
  */
-export interface Role extends EntityWithId {
+export interface Role extends BaseEntity {
   /** 角色名称 */
   name: string;
   /** 角色描述 */
@@ -71,7 +45,7 @@ export interface Role extends EntityWithId {
 /**
  * 单位定义
  */
-export interface Unit extends EntityWithId {
+export interface Unit extends BaseEntity {
   /** 单位名称 */
   name: string;
   /** 上级单位 ID */
@@ -83,7 +57,7 @@ export interface Unit extends EntityWithId {
 /**
  * 部门定义
  */
-export interface Department extends EntityWithId {
+export interface Department extends BaseEntity {
   /** 部门名称 */
   name: string;
   /** 上级部门 ID */
@@ -103,7 +77,7 @@ export interface GrantedAuthority {
 /**
  * 登录用户信息（聚合）
  */
-export interface LoginUserInfo extends EntityWithId {
+export interface LoginUserInfo extends BaseEntity {
   /** 用户名 */
   username: string;
   /** 邮箱 */

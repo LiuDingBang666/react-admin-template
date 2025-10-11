@@ -36,8 +36,7 @@ import {
   Transfer,
   TreeSelect,
 } from 'antd';
-import type { BaseEntity } from '@/entity/common.ts';
-import React from 'react';
+
 import BaseUpload, { type BaseUploadProps } from '@/components/file-upload/BaseUpload.tsx';
 
 /**
@@ -46,7 +45,7 @@ import BaseUpload, { type BaseUploadProps } from '@/components/file-upload/BaseU
  * @author: mayn
  * @date: 2025/9/23 17:32
  */
-export interface BaseFormItemProps<T extends BaseEntity = BaseEntity> {
+export interface BaseFormItemProps<T = any> {
   // 表单配置
   // 字段名称
   name: keyof T;
@@ -99,7 +98,7 @@ export interface BaseFormItemProps<T extends BaseEntity = BaseEntity> {
 }
 
 // 用具名泛型定义组件，避免 React.FC 在泛型上的限制
-const BaseFormItem = <T extends BaseEntity = BaseEntity>({
+const BaseFormItem = ({
   name,
   label,
   type,
@@ -107,7 +106,7 @@ const BaseFormItem = <T extends BaseEntity = BaseEntity>({
   rules,
   props,
   placeholder,
-}: BaseFormItemProps<T>) => {
+}: BaseFormItemProps) => {
   // 对于开关/复选框，Form.Item 需要 valuePropName='checked'
   const mergedFormItemProps: FormItemProps =
     type === 'Switch' || type === 'Checkbox'

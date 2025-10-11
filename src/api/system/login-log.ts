@@ -59,7 +59,7 @@ export function getListLoginLog(data: RequestParams): Promise<Array<LoginLog>> {
 }
 
 /**
- * 查询 by id
+ * 查询根据id
  * @param id
  */
 export function getLoginLogById(id: string): Promise<LoginLog> {

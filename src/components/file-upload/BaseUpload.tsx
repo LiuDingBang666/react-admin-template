@@ -5,6 +5,7 @@ import { post } from '@/utils/http-request.ts';
 import type { BaseResult, RequestParams } from '@/entity/common.ts';
 import dayjs from 'dayjs';
 import type { UploadChangeParam } from 'antd/es/upload/interface';
+import { addFileUpload } from '@/api/system/file-upload.ts';
 
 /**
  * @name: 名称
@@ -105,6 +106,17 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     file.url = OSSData.dir + filename;
+
+    // 新增文件上传记录
+    addFileUpload({
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      filePath: file.url,
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.name.substring(file.name.lastIndexOf('.') + 1, file.name.length),
+      remark: JSON.stringify({ dir: OSSData?.dir, host: OSSData?.host }) || '',
+    });
     return file;
   };
 

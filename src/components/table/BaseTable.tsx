@@ -405,7 +405,7 @@ function BaseTable(props: BaseTableProps<any>) {
     isObserverParent = true,
     selectParent?: HTMLElement,
   ) {
-    let resizeObserver = undefined;
+    let resizeObserver: ResizeObserver | undefined = undefined;
     if (box) {
       // 获取到父节点
       const parent = selectParent ?? (box.parentElement as HTMLElement);
