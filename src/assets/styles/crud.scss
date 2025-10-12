@@ -1,19 +1,33 @@
 .table-box {
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .search {
   width: 100%;
   margin-bottom: 15px;
+
+  .ant-form-item {
+    margin-bottom: 10px !important;
+  }
 }
 .table {
   width: 100%;
-  height: 87%;
+  height: auto;
   overflow: hidden;
+  flex: 1;
 }
 
 .pagination-operator {
   padding-top: 15px;
-  height: 3%;
+  width: 100%;
+  .ant-pagination {
+    white-space: nowrap;
+    .ant-pagination-item {
+      min-width: auto;
+      padding: 0px 5px;
+    }
+  }
 }

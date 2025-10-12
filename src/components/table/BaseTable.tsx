@@ -413,115 +413,26 @@ function BaseTable(props: BaseTableProps<any>) {
     type,
   ]);
 
-  // 表格高度自动计算（当没有指定表格高度时，会自动计算）
-  const [autoComputerMaxHeight, setAutoComputerMaxHeight] = useState<string>('');
-  const observers: Array<ResizeObserver> = [];
+  const [form] = Form.useForm();
 
-  /**
-   * 观察dom自动计算表格高度
-   * 1. 只有当表格高度没有指定时，会自动计算
-   * @param box dom
-   * @param isObserverParent 是否观察父容器高度改变
-   * @param selectParent 父容器（默认是box的父容器）
-   */
-  function observerDomAutoFitTableHeight(
-    box: Element | null,
-    isObserverParent = true,
-    selectParent?: HTMLElement,
-  ) {
-    let resizeObserver: ResizeObserver | undefined = undefined;
-    if (box) {
-      // 获取到父节点
-      const parent = selectParent ?? (box.parentElement as HTMLElement);
-      // 观察父容器的高度改变
-      resizeObserver = new ResizeObserver(() => {
-        let totalHeight = parent.clientHeight;
-        const style = getComputedStyle(parent);
-        const paddingTop = Math.ceil(parseFloat(style.paddingTop));
-        const paddingBottom = Math.ceil(parseFloat(style.paddingBottom));
-        const marginTop = Math.ceil(parseFloat(style.marginTop));
-        const marginBottom = Math.ceil(parseFloat(style.marginBottom));
-        // fixed 计算高度不对的问题
-        totalHeight -= paddingTop + paddingBottom + marginTop + marginBottom;
-        let otherHeight = 0;
-        // 去掉父容器的margin
-        // 先找到表格
-        const table = document.querySelector('.table-box');
-        if (table) {
-          function getAllChildNodes(node: HTMLElement) {
-            if (node != table) {
-              if (node.nodeType === Node.ELEMENT_NODE) {
-                if (!nodeIsIncludeClass(node, 'table-box')) {
-                  otherHeight += node.clientHeight;
-                } else {
-                  node.childNodes.forEach((item: ChildNode) => {
-                    getAllChildNodes(item as HTMLElement);
-                  });
-                }
-              }
-            }
-          }
+  // 计算可滚动高度
+  const [scrollHeight, setScrollHeight] = useState<number | undefined>();
 
-          // 判断某个node是否有包函className的节点
-          function nodeIsIncludeClass(node: HTMLElement, className: string) {
-            if (
-              node.nodeType === Node.ELEMENT_NODE &&
-              node.className &&
-              node.className.includes &&
-              node.className.includes(className)
-            ) {
-              return true;
-            } else {
-              let flag = false;
-              node.childNodes.forEach((item: ChildNode) => {
-                const result = nodeIsIncludeClass(item as HTMLElement, className);
-                if (result) {
-                  flag = true;
-                }
-              });
-              return flag;
-            }
-          }
-          getAllChildNodes(parent);
-          // 表格高度 = 总高度 - [搜索栏高度 - 分页栏高度]
-          setAutoComputerMaxHeight(`${totalHeight - otherHeight}px`);
-        } else {
-          console.warn('表格未找到,自动计算高度失败');
-        }
-      });
-      if (resizeObserver) {
-        resizeObserver.observe(isObserverParent ? (parent as Element) : box);
-        observers.push(resizeObserver);
-      }
+  function computedScrollHeight() {
+    const dom = document.querySelector('.table-box');
+    if (dom) {
+      setScrollHeight(dom.clientHeight - 230);
     }
   }
 
   useEffect(() => {
-    const search = document.querySelector('.search');
-    if (search) {
-      // 对搜索框进行观察,搜索框高度改变，表格高度自动吃父元素的剩余高度
-      observerDomAutoFitTableHeight(search, false);
-    } else {
-      // 对表格进行观察-适配单表格场景,表格高度自动吃父元素的剩余高度
-      observerDomAutoFitTableHeight(document.querySelector('.table-box'));
-    }
-    // 对窗口进行观察,窗口大小改变，表格高度自动吃父元素的剩余高度
-    if (document.querySelector('.table-box')) {
-      observerDomAutoFitTableHeight(
-        document.body,
-        false,
-        document.querySelector('.table-box')!.parentElement as HTMLElement,
-      );
-    }
+    computedScrollHeight();
+    // 观察窗口变化
+    window.addEventListener('resize', computedScrollHeight);
     return () => {
-      observers.forEach((item) => {
-        item.disconnect();
-      });
+      window.removeEventListener('resize', () => {});
     };
-  }, [observerDomAutoFitTableHeight, observers, props.searchs]);
-
-  const [form] = Form.useForm();
-
+  }, []);
   return (
     <>
       <div className="table-box">
@@ -596,10 +507,8 @@ function BaseTable(props: BaseTableProps<any>) {
             dataSource={data}
             loading={loading}
             rowSelection={rowSelection}
-            scroll={{
-              y: autoComputerMaxHeight,
-            }}
             pagination={false}
+            scroll={{ y: scrollHeight }}
           />
         </Row>
 
