@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { App, Button, Upload, type UploadFile, type UploadProps } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { post } from '@/utils/http-request.ts';
@@ -69,6 +69,9 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
     }
   };
 
+  useEffect(() => {
+    init();
+  }, []);
   const handleChange: UploadProps['onChange'] = ({ fileList }) => {
     console.log('Aliyun OSS:', fileList);
     props.onChange?.([...fileList] as unknown as UploadChangeParam<UploadFile>);
@@ -118,7 +121,6 @@ const BaseUpload: React.FC<BaseUploadProps> = function (props) {
   let uploadProps: object = props;
 
   async function handlerPreview(file: UploadFile) {
-    console.log(file);
     const { data } = await post<BaseResult<string>>(`/aliyun/get_sts_credential`, {
       endpoint: props.endpoint,
       region: props.region,
