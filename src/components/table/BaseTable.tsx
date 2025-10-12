@@ -23,15 +23,7 @@ import '@/assets/styles/crud.scss';
 import FormDetail, { type FormDetailConfigProps } from '@/components/form/FormDetail.tsx';
 import FormUpdate from '@/components/form/FormUpdate.tsx';
 import BaseFormItem, { type BaseFormItemProps } from '@/components/form/BaseFormItem.tsx';
-import React, {
-  type JSX,
-  type ReactElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { type JSX, type ReactElement, useEffect, useMemo, useRef, useState } from 'react';
 import type { BaseEntity, BasePage, BaseResult, RequestParams } from '@/entity/common.ts';
 import { PermissionWrapComponent } from '@/components/PermissionWrapComponent.tsx';
 import BaseDrawer, { type BaseDrawerRef } from '@/components/drawer/BaseDrawer.tsx';
@@ -141,16 +133,12 @@ function BaseTable(props: BaseTableProps<any>) {
   });
 
   // 查询
-  async function onSearch(values: RequestParams, search = true) {
-    setTableParams({
-      ...tableParams,
-      searchParams: {
+  function onSearch(values: RequestParams, search = true) {
+    if (search) {
+      fetchData({
         ...tableParams.searchParams,
         ...values,
-      },
-    });
-    if (search) {
-      fetchData();
+      });
     }
   }
 
@@ -172,36 +160,33 @@ function BaseTable(props: BaseTableProps<any>) {
   }
 
   // 加载数据
-  const fetchData = useCallback(
-    (extraParams: object = {}) => {
-      async function executeFetch() {
-        if (props.api !== undefined) {
-          setData([]);
-          setLoading(true);
-          const values = { ...tableParams.searchParams, ...props.searchParams, ...extraParams };
-          if (props.onSearchBefore) {
-            props.onSearchBefore(values);
-          }
-          const { data } = await props.api({
-            ...values,
-            pageNum: tableParams.pagination.current,
-            pageSize: tableParams.pagination.pageSize,
-          });
-          setData(() => data.list as Array<BaseEntity>);
-          setLoading(false);
-          setTableParams({
-            searchParams: values,
-            pagination: {
-              ...tableParams.pagination,
-              total: data.total,
-            },
-          });
+  const fetchData = (extraParams: object = {}) => {
+    async function executeFetch() {
+      if (props.api !== undefined) {
+        setData([]);
+        setLoading(true);
+        const values = { ...tableParams.searchParams, ...props.searchParams, ...extraParams };
+        if (props.onSearchBefore) {
+          props.onSearchBefore(values);
         }
+        const { data } = await props.api({
+          ...values,
+          pageNum: tableParams.pagination.current,
+          pageSize: tableParams.pagination.pageSize,
+        });
+        setData(() => data.list as Array<BaseEntity>);
+        setLoading(false);
+        setTableParams({
+          searchParams: values,
+          pagination: {
+            ...tableParams.pagination,
+            total: data.total,
+          },
+        });
       }
-      executeFetch().then();
-    },
-    [props, tableParams],
-  );
+    }
+    executeFetch().then();
+  };
 
   // 初始加载
 
