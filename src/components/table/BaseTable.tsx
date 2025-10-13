@@ -426,8 +426,6 @@ function BaseTable(props: BaseTableProps<any>) {
           <Form
             name="basic"
             form={form}
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
             initialValues={{ remember: true }}
             onFinish={onSearch}
             autoComplete="off"

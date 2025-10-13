@@ -3,68 +3,11 @@
  * @author: mayn
  * @date: 2025/10/11 11:17
  */
-
 import type { BaseEntity } from '@/entity/common.ts';
-
-/**
- * 角色-权限 关联（通常是中间表）
- */
-export interface RolePermissionRef extends BaseEntity {
-  /** 角色 ID */
-  roleId: string;
-  /** 权限 ID */
-  permissionId: string;
-}
-
-/**
- * 权限定义
- */
-export interface Permission extends BaseEntity {
-  /** 菜单/资源 ID（后端字段名） */
-  fkMenuId: string;
-  /** 权限名 */
-  name: string;
-  /** 权限描述 */
-  description: string;
-  /** 权限含义名称（后端拼写） */
-  meanName: string;
-}
-
-/**
- * 角色定义
- */
-export interface Role extends BaseEntity {
-  /** 角色名称 */
-  name: string;
-  /** 角色描述 */
-  description: string;
-  /** 角色-权限关联列表（如需直接使用权限列表，也可扩展为 Permission[]） */
-  permissions: RolePermissionRef[];
-}
-
-/**
- * 单位定义
- */
-export interface Unit extends BaseEntity {
-  /** 单位名称 */
-  name: string;
-  /** 上级单位 ID */
-  parentId: string;
-  /** 描述 */
-  description: string;
-}
-
-/**
- * 部门定义
- */
-export interface Department extends BaseEntity {
-  /** 部门名称 */
-  name: string;
-  /** 上级部门 ID */
-  parentId: string;
-  /** 描述 */
-  description: string;
-}
+import type { Permission } from '@/entity/system/permission.ts';
+import type { Role } from '@/entity/system/role.ts';
+import type { Unit } from '@/entity/system/unit.tsx';
+import type { Department } from '@/entity/system/department.ts';
 
 /**
  * Spring Security 授权标识

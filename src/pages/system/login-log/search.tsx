@@ -4,7 +4,7 @@ import type { LoginLog } from '@/entity/system/login-log.ts';
 const searchs: Array<BaseFormItemProps<LoginLog>> = [
   {
     name: 'username',
-    label: '用户名',
+    label: '登录账号',
     type: 'Input',
   },
   {
